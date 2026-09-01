@@ -1,0 +1,16 @@
+{
+  "//": "IDE / editor convenience only. CI typechecks per package (see turbo.json).",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@formula-in-action/shared-types": ["packages/shared-types/src/index.ts"],
+      "@formula-in-action/formula-parser": ["packages/formula-parser/src/index.ts"],
+      "@formula-in-action/formula-analyzer": ["packages/formula-analyzer/src/index.ts"],
+      "@formula-in-action/risk-detector": ["packages/risk-detector/src/index.ts"],
+      "@formula-in-action/kpi-detector": ["packages/kpi-detector/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src", "tests", "*.ts", "*.mjs"]
+}
