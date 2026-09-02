@@ -21,8 +21,8 @@ detection, and improvement suggestions.
 | `@formula-in-action/formula-analyzer` | AST → `StructuredFormula` (functions, refs, constants, ...) | implemented + tests |
 | `@formula-in-action/risk-detector` | `StructuredFormula` → `FormulaWarning[]` (rule engine) | implemented + tests |
 | `@formula-in-action/kpi-detector` | Pattern-match common business KPIs | implemented + tests |
-| `@formula-in-action/explanation-engine` | Structured prompt → validated JSON (+ template fallback) | Phase 2 |
-| `apps/api` | Fastify backend, AI provider routing, validation | Phase 2 |
+| `@formula-in-action/explanation-engine` | Structured prompt → validated JSON (+ template fallback) | implemented + tests |
+| `apps/api` | Fastify backend, AI provider routing, validation, Swagger | implemented + tests |
 | `apps/excel-addin` | React + Office.js task pane | Phase 3 |
 
 ## Requirements
@@ -49,13 +49,25 @@ no Excel dependency. Excel is interface #1, not the only interface. See
 
 ```
 Excel formula
-  -> formula-parser    (tokenize -> AST)
-  -> formula-analyzer  (AST -> StructuredFormula)
-  -> risk-detector     (rules -> Warning[])
-  -> kpi-detector      (patterns -> detectedKpi)
-  -> explanation-engine (structured prompt -> validated JSON)   [Phase 2]
-  -> Structured result
+  -> formula-parser     (tokenize -> AST)
+  -> formula-analyzer   (AST -> StructuredFormula)
+  -> risk-detector      (rules -> FormulaWarning[])
+  -> kpi-detector       (patterns -> detectedKpi)
+  -> explanation-engine (structured prompt -> AI draft, validated; template on failure)
+  -> apps/api           (Fastify: validate, rate-limit, log, Swagger)
+  -> ExplanationResult
 ```
+
+## API quick start
+
+```bash
+pnpm --filter @formula-in-action/api dev
+curl -s localhost:8787/v1/explain -H 'content-type: application/json' \
+  -d '{"formula":"=IFERROR(A2/B2,0)","mode":"formula-in-action","context":"sales"}'
+```
+
+Works with no `ANTHROPIC_API_KEY` (returns the deterministic template,
+`meta.degraded=true`). See [`apps/api/README.md`](apps/api/README.md).
 
 ## License
 

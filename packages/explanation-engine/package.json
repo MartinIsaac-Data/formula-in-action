@@ -1,0 +1,30 @@
+{
+  "name": "@formula-in-action/explanation-engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@formula-in-action/formula-analyzer": "workspace:*",
+    "@formula-in-action/formula-parser": "workspace:*",
+    "@formula-in-action/kpi-detector": "workspace:*",
+    "@formula-in-action/risk-detector": "workspace:*",
+    "@formula-in-action/shared-types": "workspace:*",
+    "zod": "^3.23.8"
+  }
+}

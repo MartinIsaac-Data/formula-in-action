@@ -1,45 +1,63 @@
-# AI Explanation Engine (Phase 2 — design notes)
+# AI Explanation Engine (`@formula-in-action/explanation-engine`)
 
-Not yet implemented. Recorded here so Phase 2 starts from a fixed contract.
+Implemented in Phase 2.
 
 ## Flow
 
 ```
-StructuredFormula + FormulaWarning[] + DetectedKpi? + mode + context
-        -> buildPrompt()            deterministic, no model call
-        -> AIProvider.complete()    forces JSON output
-        -> AiExplanationDraftSchema.parse()   (Zod; reject + retry once)
-        -> merge with deterministic fields
-        -> ExplanationResultSchema.parse()
+ExplainRequest
+  -> analyzeFormula()      -> StructuredFormula      (deterministic)
+  -> detectRisks()         -> FormulaWarning[]       (deterministic)
+  -> detectKpi()           -> DetectedKpi | null     (deterministic)
+  -> buildFunctionsTable() -> ExplanationFunction[]  (deterministic, from the registry)
+  -> buildPrompt()         -> { system, user }       (deterministic; embeds the analysis)
+  -> AiProvider.complete() -> raw text
+  -> parse + AiExplanationDraftSchema.safeParse       (retry once with the error on failure)
+  -> merge draft (prose) + deterministic fields
+  -> ExplanationResultSchema.parse()
 ```
 
-## `AIProvider` interface
+If the provider throws or the draft never validates, `buildTemplateDraft()`
+produces the prose instead and `meta.degraded = true`, `meta.model = "template"`.
+
+## `AiProvider`
 
 ```ts
-interface AIProvider {
-  readonly id: string;                 // e.g. "claude-sonnet-5"
-  complete(input: { system: string; user: string; schema: JSONSchema }):
-    Promise<unknown>;                  // parsed JSON, unvalidated
+interface AiProvider {
+  readonly id: string; // recorded in meta.model
+  complete(req: {
+    system: string;
+    user: string;
+    jsonSchema: Record<string, unknown>;
+    maxTokens: number;
+  }): Promise<string>; // raw assistant text, expected to be one JSON object
 }
 ```
 
-Implementations: `ClaudeProvider` (MVP), `StubLocalProvider`,
-`StubEnterpriseProvider`, `MockProvider` (tests). Selected by `PrivacyMode`.
+Implementations (`createProvider(config)` picks by `PrivacyMode`):
+
+| id | class | notes |
+| --- | --- | --- |
+| `<model>` | `ClaudeProvider` | `cloud`. `@anthropic-ai/sdk`, `output_config.effort: "low"`, tries `output_config.format` (json_schema) and retries once without it on `BadRequestError`. Missing key → `ProviderUnavailableError` on `complete()` (not at construction), so the engine degrades. |
+| `local-stub` | `StubLocalProvider` | `local`. Always throws. |
+| `enterprise-stub` | `StubEnterpriseProvider` | `enterprise`. Always throws. |
+| `mock` / `failing` | `MockProvider` / `FailingProvider` | tests. |
 
 ## Prompt principles
 
-- The model receives the **StructuredFormula**, not just the raw string.
-- The model produces only `AiExplanationDraft` (summary, simple/technical
-  explanation, steps, illustrative example, suggestions). Deterministic fields
-  (`formula`, `functions`, `warnings`, `detectedKpi`, `meta`) are filled by the
-  engine.
-- `context` selects the illustrative-example domain (requirement #5).
-- `mode` selects which explanation field the UI leads with; all are still
-  generated so switching modes is instant and free.
+- The model receives the **StructuredFormula** rendered as a fact sheet, not just
+  the raw string. It is told to use exactly the functions listed and not to
+  contradict detected references/constants/conditions.
+- The model returns only `AiExplanationDraft` (summary, simple/technical
+  explanation, steps, illustrative example, suggestions). `formula`, `functions`,
+  `warnings`, `detectedKpi`, `meta` are filled by the engine.
+- `context` picks the illustrative-example domain (requirement #5); `mode` sets
+  which field the pane leads with — all are generated so switching is instant.
 
-## Degradation (requirement #8)
+## Known Phase-2 caveats
 
-If the provider call fails or the draft fails validation twice, the engine
-returns a **template-built** `ExplanationResult` with `meta.degraded = true`:
-formula + functions table + warnings from the deterministic core, plus a
-templated step outline and a generic illustrative example.
+- `output_config.format` shape is best-effort (SDK/model drift). Set
+  `AI_STRUCTURED_OUTPUT=false` to rely on prompt + Zod validation only.
+- `@anthropic-ai/sdk` version in `package.json` is a guess — `pnpm install` may
+  resolve a newer line; bump if resolution complains.
+- Template prose is correct but plain — it is a safety net, not the product.

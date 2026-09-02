@@ -30,7 +30,7 @@
 | --- | --- | --- |
 | **0 — Foundations** ✅ | monorepo, tooling, CI, shared-types contract | `pnpm test` runs |
 | **1 — Deterministic core** ✅ | parser → analyzer → risk-detector → kpi-detector, full test suite | engine explains formula structure with zero AI |
-| **2 — Explanation engine + API** | prompt builder, `AIProvider` interface, Claude provider, Zod response validation, **template fallback**; Fastify API (validate + rate-limit + swagger + pino) | `curl` the API, get valid structured explanation JSON |
+| **2 — Explanation engine + API** ✅ | prompt builder, `AiProvider` interface, `ClaudeProvider` (structured-output with graceful downgrade), Zod response validation + 1 retry, deterministic **template fallback**; Fastify API (Ajv + Zod validation, `@fastify/rate-limit`, `@fastify/helmet`, `@fastify/cors`, Swagger UI, pino); Dockerfile + compose | `curl localhost:8787/v1/explain` returns a schema-valid `ExplanationResult` (degraded template when no API key) |
 | **3 — Excel task pane MVP** | manifest + sideload + HTTPS dev; selection hook; tabbed UI (Overview / Step-by-Step / Example / Issues / Improve); functions table; mode switcher; context picker; states; copy/regenerate; light/dark | full workflow in Excel Web + Desktop |
 | **4 — Hardening & polish** | run the #17 matrix, prompt tuning per mode/context, all #8 error paths, a11y pass, docs, README | demo-ready MVP |
 | **5 — AppSource prep** | Azure hosting, Partner Center, validation-policy review, privacy statement + support URL, telemetry opt-in, listing assets | submitted |

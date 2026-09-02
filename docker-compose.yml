@@ -1,0 +1,31 @@
+# Local container run of the API. Build from the repo root:
+#   docker compose up --build
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "8787:8787"
+    environment:
+      NODE_ENV: production
+      PORT: "8787"
+      PRIVACY_MODE: cloud
+      AI_MODEL: claude-sonnet-5
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      RATE_LIMIT_MAX: "30"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8787/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Phase 6+: uncomment when saved explanations / team knowledge base land.
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_PASSWORD: dev
+  #     POSTGRES_DB: formula_in_action
+  #   ports:
+  #     - "5432:5432"

@@ -12,6 +12,7 @@ export default defineConfig({
       '@formula-in-action/formula-analyzer': pkg('formula-analyzer'),
       '@formula-in-action/risk-detector': pkg('risk-detector'),
       '@formula-in-action/kpi-detector': pkg('kpi-detector'),
+      '@formula-in-action/explanation-engine': pkg('explanation-engine'),
     },
   },
   test: {

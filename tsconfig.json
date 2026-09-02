@@ -9,8 +9,9 @@
       "@formula-in-action/formula-parser": ["packages/formula-parser/src/index.ts"],
       "@formula-in-action/formula-analyzer": ["packages/formula-analyzer/src/index.ts"],
       "@formula-in-action/risk-detector": ["packages/risk-detector/src/index.ts"],
-      "@formula-in-action/kpi-detector": ["packages/kpi-detector/src/index.ts"]
+      "@formula-in-action/kpi-detector": ["packages/kpi-detector/src/index.ts"],
+      "@formula-in-action/explanation-engine": ["packages/explanation-engine/src/index.ts"]
     }
   },
-  "include": ["packages/*/src", "tests", "*.ts", "*.mjs"]
+  "include": ["packages/*/src", "apps/*/src", "apps/*/test", "tests", "*.ts", "*.mjs"]
 }
