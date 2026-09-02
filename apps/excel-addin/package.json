@@ -1,0 +1,40 @@
+{
+  "name": "@formula-in-action/excel-addin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "preview": "vite preview --port 3000 --strictPort",
+    "build": "tsc --noEmit && vite build && pnpm manifest:prod",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src manifest",
+    "certs": "office-addin-dev-certs install",
+    "manifest:dev": "tsx manifest/build-manifest.ts dev",
+    "manifest:prod": "tsx manifest/build-manifest.ts prod",
+    "manifest:validate": "office-addin-manifest validate manifest/manifest.dev.xml",
+    "sideload": "office-addin-debugging start manifest/manifest.dev.xml desktop",
+    "sideload:stop": "office-addin-debugging stop manifest/manifest.dev.xml"
+  },
+  "dependencies": {
+    "@fluentui/react-components": "^9.54.17",
+    "@fluentui/react-icons": "^2.0.270",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@formula-in-action/shared-types": "workspace:*",
+    "@testing-library/react": "^16.0.1",
+    "@types/node": "^22.7.4",
+    "@types/office-js": "^1.0.377",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.2",
+    "jsdom": "^25.0.1",
+    "office-addin-debugging": "^6.0.3",
+    "office-addin-dev-certs": "^1.13.4",
+    "office-addin-manifest": "^1.13.6",
+    "tsx": "^4.19.1",
+    "vite": "^5.4.9"
+  }
+}

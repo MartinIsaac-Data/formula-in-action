@@ -1,0 +1,4 @@
+# Generated from manifest.template.xml
+manifest/manifest.dev.xml
+manifest/manifest.prod.xml
+.env.local

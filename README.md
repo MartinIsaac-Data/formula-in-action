@@ -23,7 +23,7 @@ detection, and improvement suggestions.
 | `@formula-in-action/kpi-detector` | Pattern-match common business KPIs | implemented + tests |
 | `@formula-in-action/explanation-engine` | Structured prompt → validated JSON (+ template fallback) | implemented + tests |
 | `apps/api` | Fastify backend, AI provider routing, validation, Swagger | implemented + tests |
-| `apps/excel-addin` | React + Office.js task pane | Phase 3 |
+| `apps/excel-addin` | React 18 + Vite + Fluent UI v9 + Office.js task pane | implemented (unrun) |
 
 ## Requirements
 
