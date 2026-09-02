@@ -44,8 +44,10 @@ pnpm build
 
 The **Formula Analysis Engine** (`packages/*`) is pure TypeScript with no I/O and
 no Excel dependency. Excel is interface #1, not the only interface. See
-[`docs/architecture.md`](docs/architecture.md) and
-[`docs/formula-analysis-engine.md`](docs/formula-analysis-engine.md).
+[`docs/architecture.md`](docs/architecture.md),
+[`docs/formula-analysis-engine.md`](docs/formula-analysis-engine.md),
+[`docs/error-handling.md`](docs/error-handling.md), and
+[`docs/testing.md`](docs/testing.md).
 
 ```
 Excel formula

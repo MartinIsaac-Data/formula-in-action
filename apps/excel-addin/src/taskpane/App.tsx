@@ -17,6 +17,8 @@ import { ImproveTab } from './components/tabs/ImproveTab';
 import { IssuesTab } from './components/tabs/IssuesTab';
 import { OverviewTab } from './components/tabs/OverviewTab';
 import { StepByStepTab } from './components/tabs/StepByStepTab';
+import { explanationErrorCopy } from './errorCopy';
+import type { ApiError } from './services/apiClient';
 import { useExplanation } from './hooks/useExplanation';
 import { usePreferences } from './hooks/usePreferences';
 import { useSelectedFormula } from './hooks/useSelectedFormula';
@@ -84,13 +86,16 @@ function Body(): JSX.Element {
       <ModeSwitcher value={prefs.mode} onChange={(mode) => setPrefs({ mode })} />
       <ContextPicker value={prefs.context} onChange={(context) => setPrefs({ context })} />
 
-      <div className={styles.scroll}>
+      <main className={styles.scroll}>
         {selection.status === 'loading' && <LoadingState label="Reading the selected cell…" />}
 
         {selection.status === 'error' && (
           <ErrorState
             title="Could not read the selection"
-            detail={selection.message}
+            detail={
+              selection.message ??
+              'Excel would not share the formula — the workbook or sheet may be protected.'
+            }
           />
         )}
 
@@ -107,11 +112,7 @@ function Body(): JSX.Element {
             )}
 
             {explanation.status === 'error' && (
-              <ErrorState
-                title="Could not generate an explanation"
-                detail={explanation.error.message}
-                onRetry={explanation.regenerate}
-              />
+              <ExplanationErrorState error={explanation.error} onRetry={explanation.regenerate} />
             )}
 
             {explanation.status === 'success' && (
@@ -150,7 +151,24 @@ function Body(): JSX.Element {
             )}
           </>
         )}
-      </div>
+      </main>
     </>
+  );
+}
+
+function ExplanationErrorState({
+  error,
+  onRetry,
+}: {
+  error: ApiError;
+  onRetry: () => void;
+}): JSX.Element {
+  const copy = explanationErrorCopy(error);
+  return (
+    <ErrorState
+      title={copy.title}
+      detail={copy.detail}
+      onRetry={copy.canRetry ? onRetry : undefined}
+    />
   );
 }

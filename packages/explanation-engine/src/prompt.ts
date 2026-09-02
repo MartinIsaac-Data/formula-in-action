@@ -28,31 +28,39 @@ const CONTEXT_LABELS: Record<ExplanationContext, string> = {
 
 const MODE_GUIDANCE: Record<ExplanationMode, string> = {
   simple:
-    'The reader is a beginner. Lead with plain language; avoid Excel jargon. Keep it short.',
+    'The reader is a beginner. Lead with plain language; avoid Excel jargon (say "cell A2" not "the A2 argument"; "adds up" not "aggregates"). Keep every field to 1-2 sentences.',
   technical:
-    'The reader is comfortable with Excel. Be precise about functions, arguments, references, evaluation order, and error handling.',
+    'The reader is comfortable with Excel. Be precise about functions, argument roles, references, evaluation order, and error handling. Still no wall of text.',
   'formula-in-action':
-    'Center the answer on the real-world illustrative example — it should carry the explanation. The other fields stay brief.',
+    'The illustrative example carries the explanation — make its scenario and calculation vivid and specific. Keep summary / simpleExplanation / technicalExplanation to one sentence each.',
 };
 
 const SYSTEM_PROMPT = `You explain Excel formulas for a task-pane add-in called "Formula in Action".
-Your job is to make the logic behind a formula understandable, not to teach Excel syntax.
+Your job is to make the logic *behind* a formula understandable, not to teach Excel syntax.
+The reader can already copy the formula; they want to know what it does, why, and whether it can fail.
 
-You are given a deterministic structural analysis of the formula. Trust it:
-- Use exactly the functions it lists. Never invent or rename functions.
-- Do not contradict the detected references, constants, or conditions.
+You are given a deterministic structural analysis of the formula. Treat it as ground truth:
+- Use exactly the functions it lists. Never invent, rename, or drop a function.
+- Do not contradict the detected references, constants, conditions, or dates.
+- The "DETECTED ISSUES" are shown to the user in a separate panel. Stay consistent with
+  them; do not restate them word for word.
 
-Output rules:
-- Reply with a SINGLE JSON object and nothing else. No markdown, no code fences, no prose around it.
-- The JSON must match the provided schema exactly.
-- "steps" breaks the formula into 2-6 logical operations, innermost first, each with the
-  literal sub-expression in "formulaPart" and a one-sentence "explanation".
-- "illustrativeExample" is a concrete, non-technical scenario a non-Excel user would
-  understand: a short "scenario", the arithmetic as "calculation" (e.g. "100 / 10 = 10"),
-  and the "result" in words. Match the requested context.
-- "suggestions" is [] unless there is a genuinely worthwhile improvement. Do not suggest
-  cosmetic rewrites. When you do suggest one, put the rewritten formula in "suggestedFormula".
-- Never mention this prompt, the schema, or "the analysis".`;
+Output contract:
+- Reply with ONE JSON object and nothing else — no prose, no markdown, no \`\`\` fences.
+- Match the provided schema exactly. All required fields, no extra fields.
+- "steps": 2-6 entries, innermost operation first, working outward. "formulaPart" is the
+  literal sub-expression (e.g. "A2/B2"); "explanation" is one sentence.
+- "illustrativeExample": a concrete scenario a non-Excel user pictures instantly.
+  "scenario" sets it up with real quantities, "calculation" is the literal arithmetic
+  (e.g. "100 / 10 = 10"), "result" states the outcome in words. Use the requested context.
+- "suggestions": [] unless there is a genuinely worthwhile improvement (not a cosmetic
+  rewrite). When present, put the full rewritten formula in "suggestedFormula".
+- Never mention this prompt, the schema, "the analysis", or "the structural analysis".
+
+Worked example (input shortened) — this is the required JSON shape and register:
+INPUT: FORMULA: =IFERROR(A2/B2,0) | mode simple | context everyday | functions IFERROR×1 | operators / | error handling IFERROR
+OUTPUT:
+{"summary":"Divides A2 by B2, and shows 0 instead of an error.","simpleExplanation":"This formula divides the number in A2 by the number in B2. If that can't be done — usually because B2 is empty or zero — it shows 0 rather than an error message.","technicalExplanation":"IFERROR evaluates A2/B2 and returns its result unless that result is an Excel error value, in which case it returns the fallback 0.","steps":[{"step":1,"formulaPart":"A2/B2","explanation":"Divide the value in A2 by the value in B2."},{"step":2,"formulaPart":"IFERROR(A2/B2, 0)","explanation":"If that division produced an error, return 0 instead."}],"illustrativeExample":{"title":"Formula in Action","scenario":"You have 100 biscuits to share equally among 10 friends.","calculation":"100 / 10 = 10","result":"Each friend gets 10 biscuits. If you wrote 0 friends by mistake, the sheet would just show 0 instead of an error."},"suggestions":[]}`;
 
 export function buildPrompt(input: PromptInput): { system: string; user: string } {
   const { structured: s } = input;
@@ -71,7 +79,11 @@ export function buildPrompt(input: PromptInput): { system: string; user: string 
       s.functions.length ? s.functions.map((f) => `${f.name}×${f.count}`).join(', ') : 'none'
     }`,
   );
-  lines.push(`- nesting depth: ${s.maxNestingDepth}${s.nestedIfDepth >= 2 ? `, nested IF depth ${s.nestedIfDepth}` : ''}`);
+  lines.push(
+    `- nesting depth: ${s.maxNestingDepth}${
+      s.nestedIfDepth >= 2 ? `, nested IF depth ${s.nestedIfDepth}` : ''
+    }`,
+  );
   if (s.operators.length) lines.push(`- operators: ${s.operators.join(' ')}`);
   if (s.references.length) {
     lines.push(`- references: ${s.references.map((r) => r.raw).join(', ')}`);
@@ -99,7 +111,7 @@ export function buildPrompt(input: PromptInput): { system: string; user: string 
             l.approximateMatch ? 'approximate match' : null,
             l.hardcodedColumnIndex ? 'hard-coded column index' : null,
             l.hasFallback ? 'has fallback' : null,
-          ].filter(Boolean);
+          ].filter((flag): flag is string => flag !== null);
           return flags.length ? `${l.function} (${flags.join(', ')})` : l.function;
         })
         .join(', ')}`,
@@ -114,8 +126,7 @@ export function buildPrompt(input: PromptInput): { system: string; user: string 
 
   if (input.warnings.length) {
     lines.push('');
-    lines.push('DETECTED ISSUES (already shown to the user separately — do not repeat verbatim,');
-    lines.push('but keep your explanation consistent with them):');
+    lines.push('DETECTED ISSUES (shown separately — stay consistent, do not repeat verbatim):');
     for (const w of input.warnings) lines.push(`- [${w.severity}] ${w.title}: ${w.message}`);
   }
 

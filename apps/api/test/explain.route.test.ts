@@ -50,6 +50,17 @@ describe('POST /v1/explain', () => {
     expect(res.statusCode).toBe(400);
   });
 
+  it('returns 400 formula_too_long for an oversized formula', async () => {
+    app = await testApp();
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/explain',
+      payload: { formula: `=${'A1+'.repeat(4000)}A1` },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error.code).toBe('formula_too_long');
+  });
+
   it('returns 422 for an unparseable formula', async () => {
     app = await testApp();
     const res = await app.inject({ method: 'POST', url: '/v1/explain', payload: { formula: '=SUM(' } });

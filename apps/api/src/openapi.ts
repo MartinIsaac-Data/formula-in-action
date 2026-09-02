@@ -8,7 +8,9 @@ export const explainRequestSchema = {
   additionalProperties: false,
   required: ['formula'],
   properties: {
-    formula: { type: 'string', minLength: 1, maxLength: MAX_FORMULA_LENGTH },
+    // Upper bound is enforced by the route handler (code: formula_too_long) and
+    // by ExplainRequestSchema, so the more specific error wins over Ajv's.
+    formula: { type: 'string', minLength: 1, maxLength: MAX_FORMULA_LENGTH * 4 },
     cellAddress: { type: 'string', maxLength: 64 },
     sheetNames: { type: 'array', items: { type: 'string', maxLength: 128 }, maxItems: 64 },
     namedRanges: { type: 'array', items: { type: 'string', maxLength: 128 }, maxItems: 256 },

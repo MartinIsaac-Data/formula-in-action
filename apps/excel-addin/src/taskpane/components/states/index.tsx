@@ -18,7 +18,7 @@ const useStyles = makeStyles({
 export function LoadingState({ label }: { label: string }): JSX.Element {
   const styles = useStyles();
   return (
-    <div className={styles.root}>
+    <div className={styles.root} role="status" aria-live="polite">
       <Spinner label={label} />
     </div>
   );
@@ -35,7 +35,7 @@ export function ErrorState({
 }): JSX.Element {
   const styles = useStyles();
   return (
-    <div className={styles.root}>
+    <div className={styles.root} role="alert">
       <Text weight="semibold">{title}</Text>
       {detail ? (
         <Text size={200} className={styles.detail}>
@@ -64,7 +64,7 @@ export function EmptyState({
 }): JSX.Element {
   const styles = useStyles();
   return (
-    <div className={styles.root}>
+    <div className={styles.root} role="status" aria-live="polite">
       <Text size={500} aria-hidden>
         🧮
       </Text>

@@ -56,12 +56,23 @@ export async function readSelectedFormula(): Promise<SelectionSnapshot> {
       return { ...base, status: 'no-formula', cellAddress: range.address };
     });
   } catch (error) {
-    return {
-      ...EMPTY,
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Could not read the selection.',
-    };
+    return { ...EMPTY, status: 'error', message: describeError(error) };
   }
+}
+
+function describeError(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    const code = String((error as { code: unknown }).code);
+    if (code === 'AccessDenied' || code === 'GeneralException') {
+      return 'Excel would not share the selection — the workbook or sheet may be protected.';
+    }
+    if (code === 'ItemNotFound') {
+      return 'No cell is selected. Click a cell in the sheet.';
+    }
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string' && message.length > 0) return message;
+  }
+  return error instanceof Error ? error.message : 'Could not read the selection.';
 }
 
 function firstFormula(formulas: unknown): string | undefined {

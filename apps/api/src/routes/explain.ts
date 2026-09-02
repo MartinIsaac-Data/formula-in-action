@@ -1,5 +1,5 @@
 import { explainFormula, FormulaParseError } from '@formula-in-action/explanation-engine';
-import { ExplainRequestSchema } from '@formula-in-action/shared-types';
+import { ExplainRequestSchema, MAX_FORMULA_LENGTH } from '@formula-in-action/shared-types';
 import type { FastifyPluginAsync } from 'fastify';
 import { sanitizeFormula } from '../lib/sanitize';
 
@@ -25,6 +25,16 @@ export const explainRoutes: FastifyPluginAsync = async (app) => {
       },
     },
     async (request, reply) => {
+      const rawFormula = (request.body as { formula?: unknown })?.formula;
+      if (typeof rawFormula === 'string' && rawFormula.length > MAX_FORMULA_LENGTH) {
+        return reply.code(400).send({
+          error: {
+            code: 'formula_too_long',
+            message: `Formulas up to ${MAX_FORMULA_LENGTH} characters are supported.`,
+          },
+        });
+      }
+
       const parsed = ExplainRequestSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.code(400).send({
