@@ -32,8 +32,13 @@ export class ProviderRefusedError extends Error {
   }
 }
 
+/** Which vendor backs `privacyMode: 'cloud'`. Defaults to `'claude'`. */
+export type CloudProviderId = 'claude' | 'deepseek';
+
 export interface ProviderConfig {
   privacyMode: PrivacyMode;
+  /** Only meaningful when `privacyMode === 'cloud'`. */
+  cloudProvider?: CloudProviderId;
   model: string;
   apiKey?: string;
   /** Ask the provider to enforce the JSON schema server-side when it can. */

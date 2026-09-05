@@ -6,7 +6,7 @@ import swaggerUi from '@fastify/swagger-ui';
 import { createProvider, type AiProvider } from '@formula-in-action/explanation-engine';
 import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
-import { corsOrigins, loadEnv, type Env } from './env';
+import { corsOrigins, loadEnv, resolvedAiApiKey, resolvedAiModel, type Env } from './env';
 import { buildLoggerOptions } from './logger';
 import {
   errorSchema,
@@ -52,8 +52,9 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     options.provider ??
     createProvider({
       privacyMode: env.PRIVACY_MODE,
-      model: env.AI_MODEL,
-      apiKey: env.ANTHROPIC_API_KEY,
+      cloudProvider: env.AI_PROVIDER,
+      model: resolvedAiModel(env),
+      apiKey: resolvedAiApiKey(env),
       structuredOutput: env.AI_STRUCTURED_OUTPUT,
       endpoint: env.AI_ENDPOINT,
     });

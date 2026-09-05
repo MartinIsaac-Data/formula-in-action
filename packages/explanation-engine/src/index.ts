@@ -6,11 +6,12 @@ export { buildTemplateDraft } from './templates';
 export { buildFunctionsTable } from './functions-table';
 export { AI_DRAFT_JSON_SCHEMA } from './schema';
 
-export type { AiProvider, AiCompletionRequest, ProviderConfig } from './provider';
+export type { AiProvider, AiCompletionRequest, ProviderConfig, CloudProviderId } from './provider';
 export { ProviderUnavailableError, ProviderRefusedError } from './provider';
 export {
   createProvider,
   ClaudeProvider,
+  DeepSeekProvider,
   StubLocalProvider,
   StubEnterpriseProvider,
   MockProvider,

@@ -2,8 +2,9 @@
 # Azure Container Apps path in infra/). Untested; review before applying.
 #
 # Deploy: connect this repo in the Render dashboard ("New +" → "Blueprint"),
-# or `render blueprint launch` with the Render CLI. Set ANTHROPIC_API_KEY as a
-# secret in the Render dashboard after the first deploy (never commit it here).
+# or `render blueprint launch` with the Render CLI. Set ANTHROPIC_API_KEY (or
+# DEEPSEEK_API_KEY, if you set AI_PROVIDER=deepseek below) as a secret in the
+# Render dashboard after the first deploy (never commit it here).
 services:
   - type: web
     name: formula-in-action-api
@@ -31,13 +32,17 @@ services:
         value: 1 minute
       - key: PRIVACY_MODE
         value: cloud
-      - key: AI_MODEL
-        value: claude-sonnet-5
+      - key: AI_PROVIDER
+        value: claude # or: deepseek
+      # Leave AI_MODEL unset for the per-provider default (claude-sonnet-5 /
+      # deepseek-chat); set it explicitly to pin a specific model.
       - key: AI_STRUCTURED_OUTPUT
-        value: true
+        value: true # Claude only — ignored by DeepSeek
       - key: TELEMETRY_ENABLED
         value: true
       - key: CORS_ORIGINS
         sync: false # set to the add-in's deployed origin
       - key: ANTHROPIC_API_KEY
-        sync: false # set as a secret in the Render dashboard
+        sync: false # set as a secret in the Render dashboard (AI_PROVIDER=claude)
+      - key: DEEPSEEK_API_KEY
+        sync: false # set as a secret in the Render dashboard (AI_PROVIDER=deepseek)

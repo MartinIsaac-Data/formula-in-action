@@ -13,6 +13,9 @@
 //                  anthropicApiKey=<key> \
 //                  corsOrigins=https://<your-addin-domain>
 //
+// For DeepSeek instead of Claude, add:
+//                  aiProvider=deepseek deepseekApiKey=<key>
+//
 // Subsequent deploys just update the image (see the GitHub Actions workflow),
 // which is far faster than re-running this template.
 
@@ -33,15 +36,23 @@ param registryUsername string = ''
 @description('Optional: registry password / PAT.')
 param registryPassword string = ''
 
+@allowed(['claude', 'deepseek'])
+@description('Which vendor backs PRIVACY_MODE=cloud.')
+param aiProvider string = 'claude'
+
 @secure()
-@description('Anthropic API key. Required unless PRIVACY_MODE is not "cloud".')
+@description('Anthropic API key. Required when aiProvider=claude and PRIVACY_MODE=cloud.')
 param anthropicApiKey string = ''
+
+@secure()
+@description('DeepSeek API key. Required when aiProvider=deepseek and PRIVACY_MODE=cloud.')
+param deepseekApiKey string = ''
 
 @description('Comma-separated allowed CORS origins for the task pane, e.g. https://addin.example.com')
 param corsOrigins string = ''
 
-@description('AI model id.')
-param aiModel string = 'claude-sonnet-5'
+@description('AI model id. Leave empty for the per-provider default (claude-sonnet-5 / deepseek-chat).')
+param aiModel string = ''
 
 @allowed(['cloud', 'local', 'enterprise'])
 param privacyMode string = 'cloud'
@@ -94,6 +105,7 @@ resource api 'Microsoft.App/containerApps@2024-03-01' = {
       }
       secrets: concat(
         anthropicApiKey != '' ? [{ name: 'anthropic-api-key', value: anthropicApiKey }] : [],
+        deepseekApiKey != '' ? [{ name: 'deepseek-api-key', value: deepseekApiKey }] : [],
         registryPassword != '' ? [{ name: 'registry-password', value: registryPassword }] : []
       )
       registries: registryServer != '' ? [
@@ -121,9 +133,11 @@ resource api 'Microsoft.App/containerApps@2024-03-01' = {
               // Container Apps' ingress proxy is one hop in front of the app.
               { name: 'TRUST_PROXY_HOPS', value: '1' }
               { name: 'PRIVACY_MODE', value: privacyMode }
-              { name: 'AI_MODEL', value: aiModel }
+              { name: 'AI_PROVIDER', value: aiProvider }
             ],
-            anthropicApiKey != '' ? [{ name: 'ANTHROPIC_API_KEY', secretRef: 'anthropic-api-key' }] : []
+            aiModel != '' ? [{ name: 'AI_MODEL', value: aiModel }] : [],
+            anthropicApiKey != '' ? [{ name: 'ANTHROPIC_API_KEY', secretRef: 'anthropic-api-key' }] : [],
+            deepseekApiKey != '' ? [{ name: 'DEEPSEEK_API_KEY', secretRef: 'deepseek-api-key' }] : []
           )
           probes: [
             {

@@ -25,6 +25,7 @@
     "@formula-in-action/kpi-detector": "workspace:*",
     "@formula-in-action/risk-detector": "workspace:*",
     "@formula-in-action/shared-types": "workspace:*",
+    "openai": "^7.10.0",
     "zod": "^3.23.8"
   }
 }

@@ -9,7 +9,7 @@
 | Add-in UI | React + Vite + Fluent UI v9 | smoothest Office dev loop; Fluent gives Office look + light/dark for free |
 | Office | Office.js + XML add-in manifest | widest host coverage today (Win / Mac / Web); manifest generated from a template so the unified manifest is a later config change |
 | Backend | Node 20 + Fastify | built-in JSON-schema validation + rate-limit; shares the engine packages verbatim (no port to .NET) |
-| AI | Anthropic Claude behind an `AIProvider` interface | strong structured-JSON output; provider is swappable |
+| AI | `AIProvider` interface; Claude (default) or DeepSeek via `AI_PROVIDER` | strong structured-JSON output on Claude, low-cost OpenAI-compatible alternative on DeepSeek; either is swappable behind the same interface |
 | Parsing | in-house parser behind `FormulaParserAdapter` | zero runtime deps in the core; swappable |
 | Validation | Zod | one definition → runtime validation + static types; also validates AI output |
 | Tests | Vitest | shares Vite config story, ESM-native |
@@ -20,7 +20,7 @@
 - **shared-types:** zod
 - **formula-parser:** *(none)*
 - **formula-analyzer / risk-detector / kpi-detector:** workspace packages only
-- **explanation-engine** (Phase 2): @anthropic-ai/sdk, zod
+- **explanation-engine** (Phase 2): @anthropic-ai/sdk, openai (DeepSeek, via its OpenAI-compatible API), zod
 - **apps/api** (Phase 2): fastify, @fastify/cors, @fastify/helmet, @fastify/rate-limit, @fastify/swagger, @fastify/swagger-ui, pino, zod, dotenv
 - **apps/excel-addin** (Phase 3): react, react-dom, @fluentui/react-components, @fluentui/react-icons; dev: vite, @vitejs/plugin-react, vite-plugin-mkcert, office-addin-debugging, office-addin-manifest, office-addin-dev-certs, @types/office-js, @testing-library/react
 

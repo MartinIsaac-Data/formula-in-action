@@ -7,6 +7,7 @@ and the HTML page should stay in sync.
 **Publisher:** [PUBLISHER / COMPANY NAME]
 **Contact:** [SUPPORT EMAIL]
 **Last updated:** [DATE]
+**AI provider:** [PROVIDER] (`AI_PROVIDER` env var on the deployed API — "Anthropic Claude" or "DeepSeek")
 
 ## What Formula in Action is
 
@@ -35,14 +36,16 @@ service, which:
 
 1. Runs it through a deterministic analysis (no AI, no network call) to
    identify functions, references, and risks.
-2. Sends the analysis — not a screenshot, not the workbook — to Anthropic's
-   Claude API to generate the plain-language explanation and illustrative
-   example.
+2. Sends the analysis — not a screenshot, not the workbook — to our configured
+   AI provider (currently **[PROVIDER]**: either
+   [Anthropic Claude](https://www.anthropic.com/legal/privacy) or
+   [DeepSeek](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html))
+   to generate the plain-language explanation and illustrative example.
 3. Returns the result to your task pane. **Nothing is stored** after the request
    completes — there is no formula history or database in this version.
 
-See Anthropic's own privacy policy for how they handle API requests:
-https://www.anthropic.com/legal/privacy
+See that provider's own privacy policy (linked above) for how they handle API
+requests.
 
 ## Anonymous usage statistics (optional, off by default)
 
