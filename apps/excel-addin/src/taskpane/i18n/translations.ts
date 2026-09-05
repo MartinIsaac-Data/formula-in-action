@@ -10,8 +10,10 @@ export const LANGUAGE_OPTIONS: { value: Language; label: string }[] = [
 export const DEFAULT_LANGUAGE: Language = 'en';
 
 /**
- * BCP-47 tag sent as `ExplainRequest.locale` so the AI-generated explanation
- * matches the UI language too, not just the static chrome around it.
+ * BCP-47 tag for each UI language. Used as the `ExplainRequest.locale`
+ * fallback when the user hasn't picked an explicit explanation language (see
+ * `explanationLanguage.ts`) — i.e. "match Office" defaults to matching the
+ * detected UI language too.
  */
 export const LANGUAGE_LOCALE: Record<Language, string> = {
   en: 'en-US',
@@ -27,7 +29,8 @@ export interface Dictionary {
   settings: {
     ariaLabel: string;
     privacy: string;
-    language: string;
+    explanationLanguage: string;
+    explanationLanguageAuto: string;
     telemetryLabel: string;
     telemetryDetail: string;
     apiHostDetail: (host: string) => string;
@@ -122,7 +125,8 @@ export const TRANSLATIONS: Record<Language, Dictionary> = {
     settings: {
       ariaLabel: 'Settings',
       privacy: 'Privacy',
-      language: 'Language',
+      explanationLanguage: 'Explanation language',
+      explanationLanguageAuto: 'Automatic (match Office)',
       telemetryLabel: 'Share anonymous usage stats',
       telemetryDetail:
         'Only the explanation mode, context, and whether it succeeded — never your formula or cell values. Off by default.',
@@ -223,7 +227,8 @@ export const TRANSLATIONS: Record<Language, Dictionary> = {
     settings: {
       ariaLabel: 'Paramètres',
       privacy: 'Confidentialité',
-      language: 'Langue',
+      explanationLanguage: 'Langue des explications',
+      explanationLanguageAuto: "Automatique (celle d'Office)",
       telemetryLabel: "Partager des statistiques d'usage anonymes",
       telemetryDetail:
         "Uniquement le mode d'explication, le contexte, et si ça a fonctionné — jamais votre formule ni vos données. Désactivé par défaut.",

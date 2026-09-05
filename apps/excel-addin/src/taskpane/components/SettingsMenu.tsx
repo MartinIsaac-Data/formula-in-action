@@ -12,7 +12,12 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import { SettingsRegular } from '@fluentui/react-icons';
-import { LANGUAGE_OPTIONS, useTranslation, type Language } from '../i18n';
+import {
+  EXPLANATION_LANGUAGE_NAMES,
+  EXPLANATION_LANGUAGE_VALUES,
+  useTranslation,
+  type ExplanationLanguage,
+} from '../i18n';
 import { API_BASE_URL } from '../services/apiClient';
 
 function apiHost(url: string): string {
@@ -31,23 +36,30 @@ const useStyles = makeStyles({
     width: '260px',
   },
   detail: { color: tokens.colorNeutralForeground3 },
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: tokens.spacingHorizontalS },
+  row: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: tokens.spacingHorizontalS,
+  },
 });
 
 export function SettingsMenu({
   telemetryEnabled,
   onTelemetryChange,
-  language,
-  onLanguageChange,
+  explanationLanguage,
+  onExplanationLanguageChange,
 }: {
   telemetryEnabled: boolean;
   onTelemetryChange: (enabled: boolean) => void;
-  language: Language;
-  onLanguageChange: (language: Language) => void;
+  explanationLanguage: ExplanationLanguage;
+  onExplanationLanguageChange: (language: ExplanationLanguage) => void;
 }): JSX.Element {
   const styles = useStyles();
   const t = useTranslation();
-  const selectedLanguage = LANGUAGE_OPTIONS.find((o) => o.value === language);
+
+  const displayName = (value: ExplanationLanguage): string =>
+    value === 'auto' ? t.settings.explanationLanguageAuto : EXPLANATION_LANGUAGE_NAMES[value];
 
   return (
     <Popover positioning="below-end">
@@ -56,19 +68,19 @@ export function SettingsMenu({
       </PopoverTrigger>
       <PopoverSurface className={styles.surface}>
         <div className={styles.row}>
-          <Text weight="semibold">{t.settings.language}</Text>
+          <Text weight="semibold">{t.settings.explanationLanguage}</Text>
           <Dropdown
             size="small"
-            style={{ minWidth: '120px' }}
-            value={selectedLanguage?.label ?? ''}
-            selectedOptions={[language]}
+            style={{ minWidth: '150px' }}
+            value={displayName(explanationLanguage)}
+            selectedOptions={[explanationLanguage]}
             onOptionSelect={(_e, data) => {
-              if (data.optionValue) onLanguageChange(data.optionValue as Language);
+              if (data.optionValue) onExplanationLanguageChange(data.optionValue as ExplanationLanguage);
             }}
           >
-            {LANGUAGE_OPTIONS.map((option) => (
-              <Option key={option.value} value={option.value} text={option.label}>
-                {option.label}
+            {EXPLANATION_LANGUAGE_VALUES.map((value) => (
+              <Option key={value} value={value} text={displayName(value)}>
+                {displayName(value)}
               </Option>
             ))}
           </Dropdown>

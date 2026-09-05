@@ -18,7 +18,7 @@ import { IssuesTab } from './components/tabs/IssuesTab';
 import { OverviewTab } from './components/tabs/OverviewTab';
 import { StepByStepTab } from './components/tabs/StepByStepTab';
 import { explanationErrorCopy } from './errorCopy';
-import { I18nProvider, LANGUAGE_LOCALE, useTranslation } from './i18n';
+import { I18nProvider, resolveExplanationLocale, useTranslation } from './i18n';
 import type { ApiError } from './services/apiClient';
 import { track } from './services/telemetry';
 import { useExplanation } from './hooks/useExplanation';
@@ -72,8 +72,8 @@ export function App(): JSX.Element {
           onToggleTheme={toggle}
           telemetryEnabled={telemetryEnabled}
           onTelemetryChange={setTelemetryEnabled}
-          language={prefs.language}
-          onLanguageChange={(language) => setPrefs({ language })}
+          explanationLanguage={prefs.explanationLanguage}
+          onExplanationLanguageChange={(explanationLanguage) => setPrefs({ explanationLanguage })}
         />
         <Body prefs={prefs} setPrefs={setPrefs} />
       </FluentProvider>
@@ -99,12 +99,12 @@ function Body({
       formula: selection.formula,
       mode: prefs.mode,
       context: prefs.context,
-      locale: LANGUAGE_LOCALE[prefs.language],
+      locale: resolveExplanationLocale(prefs.explanationLanguage, prefs.language),
       cellAddress: selection.cellAddress,
       sheetNames: selection.sheetNames,
       namedRanges: selection.namedRanges,
     };
-  }, [selection, prefs.mode, prefs.context, prefs.language]);
+  }, [selection, prefs.mode, prefs.context, prefs.language, prefs.explanationLanguage]);
 
   const explanation = useExplanation(query, { unknownErrorMessage: t.error.genericTitle });
 

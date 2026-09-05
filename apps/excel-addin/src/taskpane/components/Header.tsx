@@ -1,6 +1,6 @@
 import { Button, makeStyles, Text, tokens } from '@fluentui/react-components';
 import { WeatherMoonRegular, WeatherSunnyRegular } from '@fluentui/react-icons';
-import { useTranslation, type Language } from '../i18n';
+import { useTranslation, type ExplanationLanguage } from '../i18n';
 import type { ThemeMode } from '../theme/useOfficeTheme';
 import { SettingsMenu } from './SettingsMenu';
 
@@ -24,15 +24,15 @@ export function Header({
   onToggleTheme,
   telemetryEnabled,
   onTelemetryChange,
-  language,
-  onLanguageChange,
+  explanationLanguage,
+  onExplanationLanguageChange,
 }: {
   mode: ThemeMode;
   onToggleTheme: () => void;
   telemetryEnabled: boolean;
   onTelemetryChange: (enabled: boolean) => void;
-  language: Language;
-  onLanguageChange: (language: Language) => void;
+  explanationLanguage: ExplanationLanguage;
+  onExplanationLanguageChange: (language: ExplanationLanguage) => void;
 }): JSX.Element {
   const styles = useStyles();
   const t = useTranslation();
@@ -50,8 +50,8 @@ export function Header({
         <SettingsMenu
           telemetryEnabled={telemetryEnabled}
           onTelemetryChange={onTelemetryChange}
-          language={language}
-          onLanguageChange={onLanguageChange}
+          explanationLanguage={explanationLanguage}
+          onExplanationLanguageChange={onExplanationLanguageChange}
         />
         <Button
           appearance="subtle"
