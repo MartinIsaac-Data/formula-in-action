@@ -1,5 +1,5 @@
 import { ExplainRequestSchema, ExplanationResultSchema } from '@formula-in-action/shared-types';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { explainFormula } from './engine';
 import { FailingProvider, MockProvider } from './providers/index';
 
@@ -88,5 +88,35 @@ describe('explainFormula', () => {
     await expect(
       explainFormula(req({ formula: '=SUM(' }), { provider: new MockProvider(VALID_DRAFT) }),
     ).rejects.toThrow();
+  });
+
+  it('reports the underlying provider error via onProviderError when degrading', async () => {
+    const boom = new Error('402 Insufficient Balance');
+    const onProviderError = vi.fn();
+    const result = await explainFormula(req(), {
+      provider: new FailingProvider(boom),
+      now: fixedNow,
+      onProviderError,
+    });
+    expect(result.meta.degraded).toBe(true);
+    expect(onProviderError).toHaveBeenCalledTimes(1);
+    expect(onProviderError).toHaveBeenCalledWith(expect.any(Error));
+  });
+
+  it('does not call onProviderError on the happy path', async () => {
+    const onProviderError = vi.fn();
+    await explainFormula(req(), { provider: new MockProvider(VALID_DRAFT), now: fixedNow, onProviderError });
+    expect(onProviderError).not.toHaveBeenCalled();
+  });
+
+  it('swallows a throwing onProviderError instead of failing the request', async () => {
+    const result = await explainFormula(req(), {
+      provider: new FailingProvider(),
+      now: fixedNow,
+      onProviderError: () => {
+        throw new Error('logger is broken');
+      },
+    });
+    expect(result.meta.degraded).toBe(true);
   });
 });

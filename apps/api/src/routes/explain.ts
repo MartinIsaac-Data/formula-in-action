@@ -57,6 +57,7 @@ export const explainRoutes: FastifyPluginAsync = async (app) => {
         const result = await explainFormula(input, {
           provider: app.aiProvider,
           maxTokens: app.appConfig.maxTokens,
+          onProviderError: (err) => request.log.warn({ err }, 'AI provider failed — degrading to template'),
         });
         return reply.send(result);
       } catch (err) {

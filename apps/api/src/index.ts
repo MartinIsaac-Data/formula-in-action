@@ -1,3 +1,7 @@
+// Must run before any other import touches process.env. Silently a no-op if
+// .env doesn't exist (e.g. production, where the platform injects env vars).
+import 'dotenv/config';
+
 import { buildApp } from './app';
 import { loadEnv } from './env';
 

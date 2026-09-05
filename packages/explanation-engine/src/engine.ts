@@ -25,6 +25,12 @@ export interface ExplainOptions {
   retries?: number;
   /** Injectable clock for deterministic tests. */
   now?: () => Date;
+  /**
+   * Called with the underlying error when the provider fails and the engine
+   * falls back to the template — otherwise a degraded response gives no clue
+   * why (e.g. a 402 from the provider account, not a bug). Never throws itself.
+   */
+  onProviderError?: (error: unknown) => void;
 }
 
 /**
@@ -63,8 +69,13 @@ export async function explainFormula(
 
   try {
     draft = await requestDraft(options.provider, promptInput, maxTokens, retries);
-  } catch {
+  } catch (error) {
     draft = null;
+    try {
+      options.onProviderError?.(error);
+    } catch {
+      /* the caller's handler must not take down the request */
+    }
   }
 
   if (!draft) {
