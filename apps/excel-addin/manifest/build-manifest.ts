@@ -7,6 +7,7 @@
  *   tsx manifest/build-manifest.ts prod
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 type Target = 'dev' | 'prod';
@@ -27,7 +28,7 @@ function main(): void {
   }
 
   const dir = fileURLToPath(new URL('.', import.meta.url));
-  const template = readFileSync(`${dir}/manifest.template.xml`, 'utf8');
+  const template = readFileSync(join(dir, 'manifest.template.xml'), 'utf8');
   const baseUrl = TARGETS[target].baseUrl.replace(/\/$/, '');
 
   const rendered = template
@@ -38,7 +39,7 @@ function main(): void {
     console.warn('[manifest] prod base URL is a placeholder — set ADDIN_PROD_URL.');
   }
 
-  const out = `${dir}/manifest.${target}.xml`;
+  const out = join(dir, `manifest.${target}.xml`);
   writeFileSync(out, rendered, 'utf8');
   console.log(`[manifest] wrote ${out}  (id=${ADDIN_ID}, base=${baseUrl})`);
 }

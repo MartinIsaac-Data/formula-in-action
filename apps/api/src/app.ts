@@ -4,7 +4,7 @@ import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { createProvider, type AiProvider } from '@formula-in-action/explanation-engine';
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { corsOrigins, loadEnv, type Env } from './env';
 import { buildLoggerOptions } from './logger';
@@ -37,7 +37,10 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   const app = Fastify({
     logger: buildLoggerOptions(env),
     bodyLimit: 64 * 1024,
-    trustProxy: env.TRUST_PROXY_HOPS > 0 ? env.TRUST_PROXY_HOPS : false,
+    // Fastify's trustProxy has no plain "hop count" option — express it as
+    // "trust the address at proxy-hop index < N" (0 = the immediate client).
+    trustProxy:
+      env.TRUST_PROXY_HOPS > 0 ? (_address: string, hop: number) => hop < env.TRUST_PROXY_HOPS : false,
     genReqId: (req) => {
       const header = req.headers['x-request-id'];
       return (Array.isArray(header) ? header[0] : header) ?? randomUUID();
@@ -87,9 +90,14 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   await app.register(rateLimit, {
     max: env.RATE_LIMIT_MAX,
     timeWindow: env.RATE_LIMIT_WINDOW,
+    // @fastify/rate-limit does `throw errorResponseBuilder(...)` — this becomes
+    // the `error` our setErrorHandler below receives, so it must look like a
+    // FastifyError (flat statusCode/code/message), not our final {error:{...}}
+    // envelope, or reply serialization fails against the ApiError schema.
     errorResponseBuilder: (_request, context) => ({
       statusCode: 429,
-      error: { code: 'rate_limited', message: `Rate limit exceeded. Retry after ${context.after}.` },
+      code: 'rate_limited',
+      message: `Rate limit exceeded. Retry after ${context.after}.`,
     }),
   });
 
@@ -109,7 +117,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
   });
   await app.register(swaggerUi, { routePrefix: '/docs' });
 
-  app.setErrorHandler((error, request, reply) => {
+  app.setErrorHandler((error: FastifyError, request, reply) => {
     const statusCode = error.statusCode ?? 500;
     if (statusCode >= 500) {
       request.log.error({ err: error }, 'unhandled error');

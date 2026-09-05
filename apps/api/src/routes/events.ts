@@ -21,7 +21,10 @@ export const eventsRoutes: FastifyPluginAsync = async (app) => {
           '"share anonymous usage stats". Always responds 202, even when telemetry ' +
           'collection is disabled server-side, so the client never has to branch on it.',
         body: { $ref: 'TelemetryEvent#' },
-        response: { 202: { type: 'object', properties: { status: { type: 'string' } } } },
+        response: {
+          202: { type: 'object', properties: { status: { type: 'string' } } },
+          400: { $ref: 'ApiError#' },
+        },
       },
       config: { rateLimit: { max: 60, timeWindow: '1 minute' } },
     },

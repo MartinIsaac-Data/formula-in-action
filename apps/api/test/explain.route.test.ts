@@ -1,7 +1,7 @@
 import { FailingProvider, MockProvider } from '@formula-in-action/explanation-engine';
 import { ExplanationResultSchema } from '@formula-in-action/shared-types';
 import type { FastifyInstance } from 'fastify';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { testApp, VALID_DRAFT } from './helpers';
 
 describe('POST /v1/explain', () => {

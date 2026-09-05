@@ -104,6 +104,19 @@ export function tokenize(source: string): Token[] {
       throw new FormulaParseError(`Unrecognized error literal near "${source.slice(i, i + 8)}"`, i, source);
     }
 
+    // Full-row reference (e.g. `1:1`, `$1:$5`). Must be checked before generic
+    // number parsing below, or a bare digit run would be consumed as a
+    // NumberLiteral before ever reaching the row-range pattern.
+    if (ch >= '0' && ch <= '9') {
+      const rowMatch = ROW_RANGE_RE.exec(source.slice(i));
+      if (rowMatch) {
+        const raw = rowMatch[0];
+        push('ref', raw, i, i + raw.length);
+        i += raw.length;
+        continue;
+      }
+    }
+
     // Number literal.
     const numMatch = NUMBER_RE.exec(source.slice(i));
     if (numMatch) {
@@ -185,7 +198,7 @@ export function tokenize(source: string): Token[] {
       const identMatch = readIdentifier(afterSheet);
       if (identMatch) {
         cursor += identMatch.length;
-        let end = start + cursor;
+        const end = start + cursor;
         const next = source[end];
 
         // Structured (table) reference: Ident[...]
