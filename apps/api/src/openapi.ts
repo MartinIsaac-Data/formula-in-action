@@ -125,6 +125,45 @@ export const explanationResultSchema = {
   },
 };
 
+export const telemetryEventSchema = {
+  $id: 'TelemetryEvent',
+  type: 'object',
+  additionalProperties: false,
+  required: ['event', 'sessionId', 'ts'],
+  properties: {
+    event: {
+      type: 'string',
+      enum: [
+        'pane_opened',
+        'explanation_shown',
+        'explanation_failed',
+        'mode_changed',
+        'context_changed',
+        'regenerated',
+        'suggestion_copied',
+      ],
+    },
+    // Shape-only here (uuid/date-time correctness is enforced by the Zod schema
+    // below in the handler) — no `format` keyword, so Ajv needs no formats plugin.
+    sessionId: { type: 'string', maxLength: 64 },
+    ts: { type: 'string', maxLength: 40 },
+    props: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        mode: { type: 'string' },
+        context: { type: 'string' },
+        degraded: { type: 'boolean' },
+        warningCount: { type: 'integer', minimum: 0, maximum: 100 },
+        functionCount: { type: 'integer', minimum: 0, maximum: 100 },
+        nestingDepth: { type: 'integer', minimum: 0, maximum: 50 },
+        latencyBucket: { type: 'string', enum: ['fast', 'medium', 'slow', 'very-slow'] },
+        errorCode: { type: 'string', maxLength: 64 },
+      },
+    },
+  },
+};
+
 export const errorSchema = {
   $id: 'ApiError',
   type: 'object',

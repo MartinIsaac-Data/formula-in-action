@@ -54,6 +54,7 @@ src/taskpane/
                        FunctionsTable · tabs/* · states/* · actions/*
 src/commands/          ribbon command file
 manifest/              XML template + build-manifest.ts (dev/prod render)
+public/                served verbatim: assets/ (icons), privacy.html, support.html
 ```
 
 ## Build

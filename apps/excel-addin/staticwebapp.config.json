@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/staticwebapp.config.json",
+  "routes": [
+    {
+      "route": "/assets/*",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" }
+    },
+    {
+      "route": "/*.html",
+      "headers": { "cache-control": "public, max-age=300, must-revalidate" }
+    }
+  ],
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "clipboard-write=(self)",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' https://appsforoffice.microsoft.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https:; frame-ancestors https://*.officeapps.live.com https://*.office.com https://*.office365.com https://outlook.office.com https://outlook.office365.com https://*.excel.officeapps.live.com"
+  },
+  "mimeTypes": {
+    ".xml": "application/xml"
+  }
+}

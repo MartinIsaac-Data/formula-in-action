@@ -5,15 +5,22 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { createProvider, type AiProvider } from '@formula-in-action/explanation-engine';
 import Fastify, { type FastifyInstance } from 'fastify';
+import { randomUUID } from 'node:crypto';
 import { corsOrigins, loadEnv, type Env } from './env';
 import { buildLoggerOptions } from './logger';
-import { errorSchema, explainRequestSchema, explanationResultSchema } from './openapi';
+import {
+  errorSchema,
+  explainRequestSchema,
+  explanationResultSchema,
+  telemetryEventSchema,
+} from './openapi';
 import { registerRoutes } from './routes/index';
+import { API_VERSION } from './version';
 
 declare module 'fastify' {
   interface FastifyInstance {
     aiProvider: AiProvider;
-    appConfig: { maxTokens: number };
+    appConfig: { maxTokens: number; telemetryEnabled: boolean; version: string };
   }
 }
 
@@ -25,10 +32,16 @@ export interface BuildAppOptions {
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyInstance> {
   const env = options.env ?? loadEnv();
+  const origins = corsOrigins(env);
 
   const app = Fastify({
     logger: buildLoggerOptions(env),
     bodyLimit: 64 * 1024,
+    trustProxy: env.TRUST_PROXY_HOPS > 0 ? env.TRUST_PROXY_HOPS : false,
+    genReqId: (req) => {
+      const header = req.headers['x-request-id'];
+      return (Array.isArray(header) ? header[0] : header) ?? randomUUID();
+    },
     ajv: { customOptions: { removeAdditional: false, coerceTypes: false, allowUnionTypes: true } },
   });
 
@@ -43,26 +56,40 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     });
 
   app.decorate('aiProvider', provider);
-  app.decorate('appConfig', { maxTokens: env.AI_MAX_TOKENS });
+  app.decorate('appConfig', {
+    maxTokens: env.AI_MAX_TOKENS,
+    telemetryEnabled: env.TELEMETRY_ENABLED,
+    version: API_VERSION,
+  });
 
-  for (const schema of [explainRequestSchema, explanationResultSchema, errorSchema]) {
+  for (const schema of [
+    explainRequestSchema,
+    explanationResultSchema,
+    telemetryEventSchema,
+    errorSchema,
+  ]) {
     app.addSchema(schema);
   }
 
-  await app.register(helmet, { contentSecurityPolicy: false });
+  await app.register(helmet, {
+    // Left off, not tightened: @fastify/swagger-ui's /docs page needs its own
+    // inline scripts/styles, and this app has no other HTML to protect with a
+    // CSP. The other helmet defaults (X-Content-Type-Options, HSTS, etc.) still
+    // apply. Revisit with a /docs-scoped CSP if that page is ever removed.
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  });
   await app.register(cors, {
-    origin: corsOrigins(env).length > 0 ? corsOrigins(env) : false,
+    origin: origins.length > 0 ? origins : false,
     methods: ['GET', 'POST'],
+    maxAge: 86400,
   });
   await app.register(rateLimit, {
     max: env.RATE_LIMIT_MAX,
     timeWindow: env.RATE_LIMIT_WINDOW,
     errorResponseBuilder: (_request, context) => ({
       statusCode: 429,
-      error: {
-        code: 'rate_limited',
-        message: `Rate limit exceeded. Retry after ${context.after}.`,
-      },
+      error: { code: 'rate_limited', message: `Rate limit exceeded. Retry after ${context.after}.` },
     }),
   });
 
@@ -70,10 +97,14 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     openapi: {
       info: {
         title: 'Formula in Action API',
-        version: '0.1.0',
+        version: API_VERSION,
         description: 'Turns an Excel formula into a structured, plain-language explanation.',
       },
-      tags: [{ name: 'explain', description: 'Formula explanation' }],
+      tags: [
+        { name: 'explain', description: 'Formula explanation' },
+        { name: 'meta', description: 'Health and version' },
+        { name: 'telemetry', description: 'Anonymous, opt-in usage events' },
+      ],
     },
   });
   await app.register(swaggerUi, { routePrefix: '/docs' });
@@ -94,8 +125,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     void reply.status(statusCode).send({
       error: {
         code,
-        message:
-          statusCode >= 500 ? 'The server could not process this request.' : error.message,
+        message: statusCode >= 500 ? 'The server could not process this request.' : error.message,
         ...(error.validation ? { details: error.validation } : {}),
       },
     });

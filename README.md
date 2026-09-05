@@ -8,7 +8,7 @@ detection, and improvement suggestions.
 
 ## Status
 
-**Phase 0 + Phase 1 (deterministic core) — code complete, pending first `pnpm test` run.**
+**MVP (Phases 0-4) code-complete; Phase 5 (AppSource prep) config/docs done — all pending first `pnpm test` run.**
 
 > Written on a machine without a Node runtime. Nothing here has been executed
 > yet: run `pnpm install && pnpm typecheck && pnpm test` on Node 20+ and treat
@@ -16,14 +16,20 @@ detection, and improvement suggestions.
 
 | Package | Purpose | State |
 | --- | --- | --- |
-| `@formula-in-action/shared-types` | Zod schemas + types for the API contract | implemented + tests |
+| `@formula-in-action/shared-types` | Zod schemas + types for the API contract (incl. telemetry events) | implemented + tests |
 | `@formula-in-action/formula-parser` | Excel formula → tokens → AST (swappable adapter) | implemented + tests |
 | `@formula-in-action/formula-analyzer` | AST → `StructuredFormula` (functions, refs, constants, ...) | implemented + tests |
 | `@formula-in-action/risk-detector` | `StructuredFormula` → `FormulaWarning[]` (rule engine) | implemented + tests |
 | `@formula-in-action/kpi-detector` | Pattern-match common business KPIs | implemented + tests |
 | `@formula-in-action/explanation-engine` | Structured prompt → validated JSON (+ template fallback) | implemented + tests |
-| `apps/api` | Fastify backend, AI provider routing, validation, Swagger | implemented + tests |
-| `apps/excel-addin` | React 18 + Vite + Fluent UI v9 + Office.js task pane | implemented (unrun) |
+| `apps/api` | Fastify backend: AI routing, validation, rate-limit, telemetry, Swagger | implemented + tests |
+| `apps/excel-addin` | React 18 + Vite + Fluent UI v9 + Office.js task pane, opt-in telemetry | implemented (unrun) |
+| `infra/`, `render.yaml`, deploy workflows | Azure Container Apps + Static Web Apps (+ Render alt.) hosting-as-code | scaffolded, untested |
+
+Phase 5 (AppSource prep) status: hosting configs, privacy statement draft, and
+telemetry consent flow exist; provisioning real infra, filling in publisher
+placeholders, and the Partner Center submission itself are still open — see
+[`docs/appsource-checklist.md`](docs/appsource-checklist.md).
 
 ## Requirements
 
@@ -46,8 +52,10 @@ The **Formula Analysis Engine** (`packages/*`) is pure TypeScript with no I/O an
 no Excel dependency. Excel is interface #1, not the only interface. See
 [`docs/architecture.md`](docs/architecture.md),
 [`docs/formula-analysis-engine.md`](docs/formula-analysis-engine.md),
-[`docs/error-handling.md`](docs/error-handling.md), and
-[`docs/testing.md`](docs/testing.md).
+[`docs/error-handling.md`](docs/error-handling.md),
+[`docs/testing.md`](docs/testing.md),
+[`docs/privacy.md`](docs/privacy.md), and
+[`docs/deployment.md`](docs/deployment.md).
 
 ```
 Excel formula

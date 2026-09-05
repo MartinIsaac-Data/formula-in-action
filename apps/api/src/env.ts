@@ -17,6 +17,11 @@ const EnvSchema = z.object({
 
   /** Comma-separated allowed origins for CORS; empty = reflect none (same-origin only). */
   CORS_ORIGINS: z.string().default(''),
+  /**
+   * Trust `X-Forwarded-*` from this many proxy hops (Azure/Render/Cloud ingress
+   * terminates TLS in front of the app). `0` = do not trust any proxy.
+   */
+  TRUST_PROXY_HOPS: z.coerce.number().int().nonnegative().max(5).default(0),
 
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(30),
   RATE_LIMIT_WINDOW: z.string().default('1 minute'),
@@ -27,6 +32,9 @@ const EnvSchema = z.object({
   AI_STRUCTURED_OUTPUT: boolish.default('true'),
   AI_ENDPOINT: z.string().url().optional(),
   AI_MAX_TOKENS: z.coerce.number().int().positive().default(3000),
+
+  /** Accept POST /v1/events (anonymous, opt-in telemetry). */
+  TELEMETRY_ENABLED: boolish.default('true'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

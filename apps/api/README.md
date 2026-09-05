@@ -8,7 +8,8 @@ Holds all secrets; the add-in never talks to a model directly.
 | Method | Path | Notes |
 | --- | --- | --- |
 | `POST` | `/v1/explain` | Body = `ExplainRequest`; returns `ExplanationResult`. |
-| `GET` | `/health` | Liveness probe (rate-limit exempt). |
+| `POST` | `/v1/events` | Anonymous, opt-in usage telemetry. Body = `TelemetryEvent` (`.strict()` props — never formula text). Always `202`, even if `TELEMETRY_ENABLED=false`. |
+| `GET` | `/health`, `/version` | Liveness + version (rate-limit exempt). |
 | `GET` | `/docs` | Swagger UI. `GET /docs/json` for the raw OpenAPI spec. |
 
 ## Run locally
@@ -27,7 +28,9 @@ deterministic template (`meta.degraded = true`) — useful for offline work.
 
 See [`.env.example`](.env.example). Key vars: `ANTHROPIC_API_KEY`, `AI_MODEL`
 (default `claude-sonnet-5`), `PRIVACY_MODE` (`cloud` only in the MVP),
-`RATE_LIMIT_MAX`, `CORS_ORIGINS`, `LOG_FORMULA_BODIES` (dev only).
+`RATE_LIMIT_MAX`, `CORS_ORIGINS`, `TRUST_PROXY_HOPS` (set to `1` behind a
+standard reverse proxy — see `../../docs/deployment.md`), `TELEMETRY_ENABLED`,
+`LOG_FORMULA_BODIES` (dev only).
 
 ## Behaviour
 

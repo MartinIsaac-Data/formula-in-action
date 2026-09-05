@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Support — Formula in Action</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+        line-height: 1.55;
+      }
+      h1 { font-size: 1.5rem; }
+      h2 { font-size: 1.1rem; margin-top: 2em; }
+      .kicker { color: #6b6b76; font-size: 0.9rem; }
+      code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; background: rgba(127,127,127,0.15); padding: 0.1em 0.3em; border-radius: 3px; }
+      a { color: #5b5fc7; }
+      footer { margin-top: 3em; color: #6b6b76; font-size: 0.85rem; }
+      [data-placeholder] { background: #fff3b0; color: #000; padding: 0 0.2em; }
+    </style>
+  </head>
+  <body>
+    <p class="kicker">🧠 Formula in Action</p>
+    <h1>Support</h1>
+
+    <h2>Getting started</h2>
+    <ol>
+      <li>Select any cell in Excel that contains a formula.</li>
+      <li>On the <strong>Home</strong> tab, choose <strong>Explain Formula</strong> (in the Formula in Action group).</li>
+      <li>The task pane opens with a simple explanation, a step-by-step breakdown, a real-world example, any issues it found, and improvement suggestions.</li>
+      <li>Switch <strong>Simple / Technical / In Action</strong> mode, or the example's <strong>context</strong> (Finance, Sales, Supply Chain, ...), from the controls at the top of the pane.</li>
+    </ol>
+
+    <h2>Common questions</h2>
+
+    <p><strong>Nothing happens when I select a formula.</strong><br />
+    Make sure the cell's content actually starts with <code>=</code>. A cell that only shows a
+    number or text is not a formula — the pane will say so.</p>
+
+    <p><strong>It says "Offline explanation".</strong><br />
+    The explanation service was temporarily unreachable. You still get the exact
+    functions, step outline, and any detected issues — just a simpler write-up.
+    Use <strong>Regenerate</strong> to try again.</p>
+
+    <p><strong>It says my formula is too long.</strong><br />
+    Formula in Action explains formulas up to about 8,000 characters. Try
+    explaining a smaller piece of the formula on its own.</p>
+
+    <p><strong>Does this work in Excel on the web / Mac?</strong><br />
+    Yes — the add-in targets Excel on Windows, Mac, and the web.</p>
+
+    <p><strong>What data does this send anywhere?</strong><br />
+    Only the selected formula and light metadata (cell address, sheet/named-range
+    names) — never cell values or your workbook. See the
+    <a href="./privacy.html">privacy statement</a> for the full picture.</p>
+
+    <h2>Still stuck?</h2>
+    <p>
+      Contact <span data-placeholder>[SUPPORT EMAIL]</span> with a description of
+      what you selected and what you expected to happen. Screenshots help; please
+      don't send workbooks containing sensitive data.
+    </p>
+
+    <footer>Formula in Action — "Don't just explain formulas. Make them understandable."</footer>
+  </body>
+</html>

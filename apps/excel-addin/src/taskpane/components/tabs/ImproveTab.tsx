@@ -3,7 +3,13 @@ import { Text } from '@fluentui/react-components';
 import { CopyButton } from '../actions/CopyButton';
 import { useTabStyles } from './shared';
 
-export function ImproveTab({ result }: { result: ExplanationResult }): JSX.Element {
+export function ImproveTab({
+  result,
+  onCopySuggestion,
+}: {
+  result: ExplanationResult;
+  onCopySuggestion?: () => void;
+}): JSX.Element {
   const styles = useTabStyles();
 
   if (result.suggestions.length === 0) {
@@ -35,7 +41,11 @@ export function ImproveTab({ result }: { result: ExplanationResult }): JSX.Eleme
               <code className={styles.code} style={{ flex: 1 }}>
                 {suggestion.suggestedFormula}
               </code>
-              <CopyButton value={suggestion.suggestedFormula} label="Copy suggested formula" />
+              <CopyButton
+                value={suggestion.suggestedFormula}
+                label="Copy suggested formula"
+                onCopy={onCopySuggestion}
+              />
             </div>
           ) : null}
         </div>

@@ -39,3 +39,15 @@ The MVP does not persist formulas or explanations. User preferences live in
 `Office.context.roamingSettings` (per-user, synced by Office). A future "saved
 explanations" / "team knowledge base" feature will require explicit opt-in and a
 database (PostgreSQL) — see [`roadmap.md`](roadmap.md).
+
+## Anonymous usage telemetry (opt-in, off by default)
+
+`POST /v1/events` (`packages/shared-types/src/events.ts`) accepts a small,
+whitelisted set of anonymous events — `pane_opened`, `mode_changed`,
+`explanation_shown`, etc. — with `props` limited by a `.strict()` Zod schema to
+mode/context/degraded/counts. No formula text, no identity, no persistence
+(structured-logged only in the MVP). The task pane only sends these when the
+user turns on "Share anonymous usage stats" in Settings
+(`useTelemetryConsent`, `services/telemetry.ts`), and a random per-pane-load
+session id is used instead of any user identifier. See
+[`privacy-statement.md`](privacy-statement.md) for the public-facing text.

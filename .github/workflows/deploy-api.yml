@@ -1,0 +1,68 @@
+name: Deploy API
+
+# Manual by default — this needs AZURE_CREDENTIALS and an existing Container
+# App (see infra/api.bicep) before it can run successfully. Once those exist,
+# uncomment the `push` trigger below to deploy on every merge to main.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to build and deploy'
+        required: false
+        default: 'latest'
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'apps/api/**'
+  #     - 'packages/**'
+  #     - '.github/workflows/deploy-api.yml'
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}-api
+  RESOURCE_GROUP: formula-in-action
+  CONTAINER_APP: formula-in-action-api
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.tag.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: tag
+        run: echo "image=${IMAGE}:${{ github.event.inputs.image_tag || github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: ${{ steps.tag.outputs.image }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az containerapp update \
+              --name "$CONTAINER_APP" \
+              --resource-group "$RESOURCE_GROUP" \
+              --image "${{ needs.build-and-push.outputs.image }}"
