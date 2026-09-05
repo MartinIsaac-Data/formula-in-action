@@ -26,6 +26,28 @@ const CONTEXT_LABELS: Record<ExplanationContext, string> = {
   education: 'education (students, grades, attendance, courses)',
 };
 
+const KNOWN_LANGUAGE_NAMES: Record<string, string> = {
+  fr: 'French',
+  es: 'Spanish',
+  de: 'German',
+  it: 'Italian',
+  pt: 'Portuguese',
+  nl: 'Dutch',
+  ja: 'Japanese',
+  zh: 'Chinese',
+  ko: 'Korean',
+  ar: 'Arabic',
+  ru: 'Russian',
+  pl: 'Polish',
+  tr: 'Turkish',
+};
+
+/** Best-effort human-readable name for a BCP-47 tag, for the prompt only. */
+function languageName(locale: string): string {
+  const primary = locale.trim().toLowerCase().split(/[-_]/)[0];
+  return KNOWN_LANGUAGE_NAMES[primary] ?? locale;
+}
+
 const MODE_GUIDANCE: Record<ExplanationMode, string> = {
   simple:
     'The reader is a beginner. Lead with plain language; avoid Excel jargon (say "cell A2" not "the A2 argument"; "adds up" not "aggregates"). Keep every field to 1-2 sentences.',
@@ -70,7 +92,13 @@ export function buildPrompt(input: PromptInput): { system: string; user: string 
   lines.push('');
   lines.push(`EXPLANATION MODE: ${input.mode} — ${MODE_GUIDANCE[input.mode]}`);
   lines.push(`ILLUSTRATIVE EXAMPLE CONTEXT: ${CONTEXT_LABELS[input.context]}`);
-  if (input.locale && input.locale !== 'en-US') lines.push(`LOCALE: ${input.locale}`);
+  if (input.locale && input.locale !== 'en-US') {
+    lines.push(
+      `RESPONSE LANGUAGE: Write every text field (summary, simpleExplanation, technicalExplanation, ` +
+        `steps[].explanation, illustrativeExample, suggestions[].title/rationale) in ` +
+        `${languageName(input.locale)}. Keep JSON keys and Excel function/cell names unchanged.`,
+    );
+  }
   lines.push('');
 
   lines.push('STRUCTURAL ANALYSIS');

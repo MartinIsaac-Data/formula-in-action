@@ -1,5 +1,6 @@
 import { Button, makeStyles, Text, tokens } from '@fluentui/react-components';
 import { WeatherMoonRegular, WeatherSunnyRegular } from '@fluentui/react-icons';
+import { useTranslation, type Language } from '../i18n';
 import type { ThemeMode } from '../theme/useOfficeTheme';
 import { SettingsMenu } from './SettingsMenu';
 
@@ -23,13 +24,18 @@ export function Header({
   onToggleTheme,
   telemetryEnabled,
   onTelemetryChange,
+  language,
+  onLanguageChange,
 }: {
   mode: ThemeMode;
   onToggleTheme: () => void;
   telemetryEnabled: boolean;
   onTelemetryChange: (enabled: boolean) => void;
+  language: Language;
+  onLanguageChange: (language: Language) => void;
 }): JSX.Element {
   const styles = useStyles();
+  const t = useTranslation();
   return (
     <header className={styles.root}>
       <div className={styles.titles}>
@@ -37,15 +43,20 @@ export function Header({
           🧠 Formula in Action
         </Text>
         <Text className={styles.subtitle} size={200}>
-          Understand your Excel formulas
+          {t.header.subtitle}
         </Text>
       </div>
       <div className={styles.actions}>
-        <SettingsMenu telemetryEnabled={telemetryEnabled} onTelemetryChange={onTelemetryChange} />
+        <SettingsMenu
+          telemetryEnabled={telemetryEnabled}
+          onTelemetryChange={onTelemetryChange}
+          language={language}
+          onLanguageChange={onLanguageChange}
+        />
         <Button
           appearance="subtle"
           icon={mode === 'dark' ? <WeatherSunnyRegular /> : <WeatherMoonRegular />}
-          aria-label={mode === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          aria-label={mode === 'dark' ? t.header.themeToLight : t.header.themeToDark}
           onClick={onToggleTheme}
         />
       </div>

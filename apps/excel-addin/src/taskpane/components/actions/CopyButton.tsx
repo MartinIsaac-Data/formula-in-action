@@ -1,6 +1,7 @@
 import { Button, Tooltip } from '@fluentui/react-components';
 import { CheckmarkRegular, CopyRegular } from '@fluentui/react-icons';
 import { useCallback, useState } from 'react';
+import { useTranslation } from '../../i18n';
 
 export function CopyButton({
   value,
@@ -13,6 +14,7 @@ export function CopyButton({
   onCopy?: () => void;
 }): JSX.Element {
   const [copied, setCopied] = useState(false);
+  const t = useTranslation();
 
   const copy = useCallback(() => {
     void navigator.clipboard?.writeText(value).then(
@@ -26,7 +28,7 @@ export function CopyButton({
   }, [value, onCopy]);
 
   return (
-    <Tooltip content={copied ? 'Copied' : label} relationship="label">
+    <Tooltip content={copied ? t.copy.copied : label} relationship="label">
       <Button
         appearance="subtle"
         size="small"

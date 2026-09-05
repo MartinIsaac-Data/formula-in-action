@@ -7,7 +7,9 @@
   xsi:type="TaskPaneApp">
 
   <Id>__ADDIN_ID__</Id>
-  <Version>0.1.0.0</Version>
+  <!-- Independent of the npm package's own (pre-1.0) semver — Office rejects
+       a manifest major version below 1 outright. Bump this on real releases. -->
+  <Version>1.0.0.0</Version>
   <ProviderName>Formula in Action</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Formula in Action" />

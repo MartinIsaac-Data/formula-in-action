@@ -1,7 +1,9 @@
 import {
   Button,
+  Dropdown,
   Link,
   makeStyles,
+  Option,
   Popover,
   PopoverSurface,
   PopoverTrigger,
@@ -10,6 +12,7 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import { SettingsRegular } from '@fluentui/react-icons';
+import { LANGUAGE_OPTIONS, useTranslation, type Language } from '../i18n';
 import { API_BASE_URL } from '../services/apiClient';
 
 function apiHost(url: string): string {
@@ -28,38 +31,63 @@ const useStyles = makeStyles({
     width: '260px',
   },
   detail: { color: tokens.colorNeutralForeground3 },
+  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: tokens.spacingHorizontalS },
 });
 
 export function SettingsMenu({
   telemetryEnabled,
   onTelemetryChange,
+  language,
+  onLanguageChange,
 }: {
   telemetryEnabled: boolean;
   onTelemetryChange: (enabled: boolean) => void;
+  language: Language;
+  onLanguageChange: (language: Language) => void;
 }): JSX.Element {
   const styles = useStyles();
+  const t = useTranslation();
+  const selectedLanguage = LANGUAGE_OPTIONS.find((o) => o.value === language);
 
   return (
     <Popover positioning="below-end">
       <PopoverTrigger disableButtonEnhancement>
-        <Button appearance="subtle" icon={<SettingsRegular />} aria-label="Settings" />
+        <Button appearance="subtle" icon={<SettingsRegular />} aria-label={t.settings.ariaLabel} />
       </PopoverTrigger>
       <PopoverSurface className={styles.surface}>
-        <Text weight="semibold">Privacy</Text>
+        <div className={styles.row}>
+          <Text weight="semibold">{t.settings.language}</Text>
+          <Dropdown
+            size="small"
+            style={{ minWidth: '120px' }}
+            value={selectedLanguage?.label ?? ''}
+            selectedOptions={[language]}
+            onOptionSelect={(_e, data) => {
+              if (data.optionValue) onLanguageChange(data.optionValue as Language);
+            }}
+          >
+            {LANGUAGE_OPTIONS.map((option) => (
+              <Option key={option.value} value={option.value} text={option.label}>
+                {option.label}
+              </Option>
+            ))}
+          </Dropdown>
+        </div>
+
+        <Text weight="semibold">{t.settings.privacy}</Text>
         <Switch
           checked={telemetryEnabled}
           onChange={(_e, data) => onTelemetryChange(data.checked)}
-          label="Share anonymous usage stats"
+          label={t.settings.telemetryLabel}
         />
         <Text size={200} className={styles.detail}>
-          Only the explanation mode, context, and whether it succeeded — never your formula
-          or cell values. Off by default.
+          {t.settings.telemetryDetail}
         </Text>
         <Text size={200} className={styles.detail}>
-          Formulas are sent to {apiHost(API_BASE_URL)} for analysis, never stored.
+          {t.settings.apiHostDetail(apiHost(API_BASE_URL))}
         </Text>
         <Link href="./privacy.html" target="_blank" rel="noreferrer">
-          Privacy statement
+          {t.settings.privacyStatement}
         </Link>
       </PopoverSurface>
     </Popover>

@@ -1,6 +1,7 @@
 import type { ExplanationContext } from '@formula-in-action/shared-types';
 import { Dropdown, makeStyles, Option, Text, tokens } from '@fluentui/react-components';
-import { CONTEXT_OPTIONS } from '../constants';
+import { CONTEXT_VALUES } from '../constants';
+import { useTranslation } from '../i18n';
 
 const useStyles = makeStyles({
   root: {
@@ -21,25 +22,25 @@ export function ContextPicker({
   onChange: (context: ExplanationContext) => void;
 }): JSX.Element {
   const styles = useStyles();
-  const selected = CONTEXT_OPTIONS.find((o) => o.value === value);
+  const t = useTranslation();
 
   return (
     <div className={styles.root}>
       <Text size={200} className={styles.label}>
-        Example context
+        {t.context.pickerLabel}
       </Text>
       <Dropdown
         className={styles.dropdown}
         size="small"
-        value={selected?.label ?? ''}
+        value={t.context.options[value] ?? ''}
         selectedOptions={[value]}
         onOptionSelect={(_e, data) => {
           if (data.optionValue) onChange(data.optionValue as ExplanationContext);
         }}
       >
-        {CONTEXT_OPTIONS.map((option) => (
-          <Option key={option.value} value={option.value} text={option.label}>
-            {option.label}
+        {CONTEXT_VALUES.map((context) => (
+          <Option key={context} value={context} text={t.context.options[context]}>
+            {t.context.options[context]}
           </Option>
         ))}
       </Dropdown>

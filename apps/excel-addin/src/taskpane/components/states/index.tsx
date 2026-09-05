@@ -1,4 +1,5 @@
 import { Button, makeStyles, Spinner, Text, tokens } from '@fluentui/react-components';
+import { useTranslation } from '../../i18n';
 import type { SelectionStatus } from '../../office/excelContext';
 
 const useStyles = makeStyles({
@@ -34,6 +35,7 @@ export function ErrorState({
   onRetry?: () => void;
 }): JSX.Element {
   const styles = useStyles();
+  const t = useTranslation();
   return (
     <div className={styles.root} role="alert">
       <Text weight="semibold">{title}</Text>
@@ -44,18 +46,12 @@ export function ErrorState({
       ) : null}
       {onRetry ? (
         <Button appearance="primary" onClick={onRetry}>
-          Try again
+          {t.state.tryAgain}
         </Button>
       ) : null}
     </div>
   );
 }
-
-const SELECTION_COPY: Record<Exclude<SelectionStatus, 'ok' | 'loading' | 'error'>, string> = {
-  'no-selection': 'Select a cell to get started.',
-  'no-formula': 'The selected cell has a value, not a formula. Pick a cell that starts with “=”.',
-  'multiple-cells': 'Select a single cell that contains a formula.',
-};
 
 export function EmptyState({
   status,
@@ -63,14 +59,20 @@ export function EmptyState({
   status: Exclude<SelectionStatus, 'ok' | 'loading' | 'error'>;
 }): JSX.Element {
   const styles = useStyles();
+  const t = useTranslation();
+  const detail: Record<typeof status, string> = {
+    'no-selection': t.state.noSelection,
+    'no-formula': t.state.noFormula,
+    'multiple-cells': t.state.multipleCells,
+  };
   return (
     <div className={styles.root} role="status" aria-live="polite">
       <Text size={500} aria-hidden>
         🧮
       </Text>
-      <Text weight="semibold">Nothing to explain yet</Text>
+      <Text weight="semibold">{t.state.emptyTitle}</Text>
       <Text size={200} className={styles.detail}>
-        {SELECTION_COPY[status]}
+        {detail[status]}
       </Text>
     </div>
   );

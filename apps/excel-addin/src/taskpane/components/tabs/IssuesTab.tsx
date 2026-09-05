@@ -1,5 +1,6 @@
 import type { FormulaWarning, ExplanationResult } from '@formula-in-action/shared-types';
 import { MessageBar, MessageBarBody, MessageBarTitle, Text } from '@fluentui/react-components';
+import { useTranslation } from '../../i18n';
 import { useTabStyles } from './shared';
 
 const INTENT: Record<FormulaWarning['severity'], 'info' | 'warning' | 'error'> = {
@@ -10,14 +11,15 @@ const INTENT: Record<FormulaWarning['severity'], 'info' | 'warning' | 'error'> =
 
 export function IssuesTab({ result }: { result: ExplanationResult }): JSX.Element {
   const styles = useTabStyles();
+  const t = useTranslation();
 
   if (result.warnings.length === 0) {
     return (
       <div className={styles.panel}>
         <Text className={styles.heading} size={200}>
-          ⚠️ POTENTIAL ISSUES
+          {t.issues.heading}
         </Text>
-        <Text className={styles.empty}>No issues detected in this formula.</Text>
+        <Text className={styles.empty}>{t.issues.none}</Text>
       </div>
     );
   }
@@ -25,7 +27,7 @@ export function IssuesTab({ result }: { result: ExplanationResult }): JSX.Elemen
   return (
     <div className={styles.panel}>
       <Text className={styles.heading} size={200}>
-        ⚠️ POTENTIAL ISSUES
+        {t.issues.heading}
       </Text>
       {result.warnings.map((warning) => (
         <MessageBar key={warning.id} intent={INTENT[warning.severity]}>

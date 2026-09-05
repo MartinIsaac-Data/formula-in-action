@@ -1,4 +1,5 @@
 import { makeStyles, Text, tokens } from '@fluentui/react-components';
+import { useTranslation } from '../i18n';
 import { CopyButton } from './actions/CopyButton';
 
 const useStyles = makeStyles({
@@ -33,13 +34,15 @@ export function FormulaBlock({
   cellAddress?: string;
 }): JSX.Element {
   const styles = useStyles();
+  const t = useTranslation();
   return (
     <section className={styles.root}>
       <div className={styles.labelRow}>
         <Text className={styles.label} size={100}>
-          FORMULA{cellAddress ? ` · ${cellAddress}` : ''}
+          {t.formula.label}
+          {cellAddress ? ` · ${cellAddress}` : ''}
         </Text>
-        <CopyButton value={formula} label="Copy formula" />
+        <CopyButton value={formula} label={t.formula.copyLabel} />
       </div>
       <pre className={styles.code}>{formula}</pre>
     </section>

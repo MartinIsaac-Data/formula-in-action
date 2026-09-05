@@ -1,19 +1,16 @@
 import type { ExplanationContext, ExplanationMode } from '@formula-in-action/shared-types';
 
-export const MODE_OPTIONS: { value: ExplanationMode; label: string; hint: string }[] = [
-  { value: 'simple', label: 'Simple', hint: 'Plain language for a beginner' },
-  { value: 'technical', label: 'Technical', hint: 'Functions, arguments, evaluation order' },
-  { value: 'formula-in-action', label: 'In Action', hint: 'A real-world scenario' },
-];
+/** Display order — labels/hints live in i18n/translations.ts, keyed by these values. */
+export const MODE_VALUES: ExplanationMode[] = ['simple', 'technical', 'formula-in-action'];
 
-export const CONTEXT_OPTIONS: { value: ExplanationContext; label: string }[] = [
-  { value: 'everyday', label: 'Everyday life' },
-  { value: 'business', label: 'Business' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'sales', label: 'Sales' },
-  { value: 'supply-chain', label: 'Supply chain' },
-  { value: 'hr', label: 'Human resources' },
-  { value: 'education', label: 'Education' },
+export const CONTEXT_VALUES: ExplanationContext[] = [
+  'everyday',
+  'business',
+  'finance',
+  'sales',
+  'supply-chain',
+  'hr',
+  'education',
 ];
 
 export const DEFAULT_MODE: ExplanationMode = 'simple';

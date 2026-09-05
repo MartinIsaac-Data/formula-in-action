@@ -1,13 +1,15 @@
 import type { ExplanationResult } from '@formula-in-action/shared-types';
 import { Text } from '@fluentui/react-components';
+import { useTranslation } from '../../i18n';
 import { useTabStyles } from './shared';
 
 export function StepByStepTab({ result }: { result: ExplanationResult }): JSX.Element {
   const styles = useTabStyles();
+  const t = useTranslation();
   return (
     <div className={styles.panel}>
       <Text className={styles.heading} size={200}>
-        🔍 STEP BY STEP
+        {t.steps.heading}
       </Text>
       {result.steps.map((step, index) => (
         <div
@@ -16,7 +18,7 @@ export function StepByStepTab({ result }: { result: ExplanationResult }): JSX.El
           style={index === result.steps.length - 1 ? { borderBottom: 'none' } : undefined}
         >
           <Text className={styles.stepIndex} size={200}>
-            Step {step.step}
+            {t.steps.stepLabel(step.step)}
           </Text>
           {step.formulaPart ? <code className={styles.code}>{step.formulaPart}</code> : null}
           <Text className={styles.prose} size={300}>

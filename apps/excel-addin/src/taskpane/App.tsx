@@ -18,10 +18,11 @@ import { IssuesTab } from './components/tabs/IssuesTab';
 import { OverviewTab } from './components/tabs/OverviewTab';
 import { StepByStepTab } from './components/tabs/StepByStepTab';
 import { explanationErrorCopy } from './errorCopy';
+import { I18nProvider, LANGUAGE_LOCALE, useTranslation } from './i18n';
 import type { ApiError } from './services/apiClient';
 import { track } from './services/telemetry';
 import { useExplanation } from './hooks/useExplanation';
-import { usePreferences } from './hooks/usePreferences';
+import { usePreferences, type Preferences } from './hooks/usePreferences';
 import { useSelectedFormula } from './hooks/useSelectedFormula';
 import { useTelemetryConsent } from './hooks/useTelemetryConsent';
 import { useOfficeTheme } from './theme/useOfficeTheme';
@@ -55,6 +56,7 @@ export function App(): JSX.Element {
   const styles = useStyles();
   const { theme, mode: themeMode, toggle } = useOfficeTheme();
   const [telemetryEnabled, setTelemetryEnabled] = useTelemetryConsent();
+  const [prefs, setPrefs] = usePreferences();
 
   useEffect(() => {
     track('pane_opened');
@@ -63,22 +65,32 @@ export function App(): JSX.Element {
   }, [telemetryEnabled]);
 
   return (
-    <FluentProvider theme={theme} className={styles.app}>
-      <Header
-        mode={themeMode}
-        onToggleTheme={toggle}
-        telemetryEnabled={telemetryEnabled}
-        onTelemetryChange={setTelemetryEnabled}
-      />
-      <Body />
-    </FluentProvider>
+    <I18nProvider language={prefs.language}>
+      <FluentProvider theme={theme} className={styles.app}>
+        <Header
+          mode={themeMode}
+          onToggleTheme={toggle}
+          telemetryEnabled={telemetryEnabled}
+          onTelemetryChange={setTelemetryEnabled}
+          language={prefs.language}
+          onLanguageChange={(language) => setPrefs({ language })}
+        />
+        <Body prefs={prefs} setPrefs={setPrefs} />
+      </FluentProvider>
+    </I18nProvider>
   );
 }
 
-function Body(): JSX.Element {
+function Body({
+  prefs,
+  setPrefs,
+}: {
+  prefs: Preferences;
+  setPrefs: (patch: Partial<Preferences>) => void;
+}): JSX.Element {
   const styles = useStyles();
+  const t = useTranslation();
   const selection = useSelectedFormula();
-  const [prefs, setPrefs] = usePreferences();
   const [tab, setTab] = useState<TabId>('overview');
 
   const query = useMemo(() => {
@@ -87,13 +99,14 @@ function Body(): JSX.Element {
       formula: selection.formula,
       mode: prefs.mode,
       context: prefs.context,
+      locale: LANGUAGE_LOCALE[prefs.language],
       cellAddress: selection.cellAddress,
       sheetNames: selection.sheetNames,
       namedRanges: selection.namedRanges,
     };
-  }, [selection, prefs.mode, prefs.context]);
+  }, [selection, prefs.mode, prefs.context, prefs.language]);
 
-  const explanation = useExplanation(query);
+  const explanation = useExplanation(query, { unknownErrorMessage: t.error.genericTitle });
 
   const handleModeChange = useCallback(
     (mode: typeof prefs.mode) => {
@@ -140,15 +153,12 @@ function Body(): JSX.Element {
       <ContextPicker value={prefs.context} onChange={handleContextChange} />
 
       <main className={styles.scroll}>
-        {selection.status === 'loading' && <LoadingState label="Reading the selected cell…" />}
+        {selection.status === 'loading' && <LoadingState label={t.state.readingCell} />}
 
         {selection.status === 'error' && (
           <ErrorState
-            title="Could not read the selection"
-            detail={
-              selection.message ??
-              'Excel would not share the formula — the workbook or sheet may be protected.'
-            }
+            title={t.state.selectionErrorTitle}
+            detail={selection.message ?? t.state.selectionErrorDetailFallback}
           />
         )}
 
@@ -160,9 +170,7 @@ function Body(): JSX.Element {
           <>
             <FormulaBlock formula={selection.formula} cellAddress={selection.cellAddress} />
 
-            {explanation.status === 'loading' && (
-              <LoadingState label="Explaining this formula…" />
-            )}
+            {explanation.status === 'loading' && <LoadingState label={t.state.explaining} />}
 
             {explanation.status === 'error' && (
               <ExplanationErrorState error={explanation.error} onRetry={handleRegenerate} />
@@ -176,21 +184,20 @@ function Body(): JSX.Element {
                     selectedValue={tab}
                     onTabSelect={(_e, data) => setTab(data.value as TabId)}
                   >
-                    <Tab value="overview">Overview</Tab>
-                    <Tab value="steps">Step&#8209;by&#8209;step</Tab>
-                    <Tab value="example">Example</Tab>
+                    <Tab value="overview">{t.tab.overview}</Tab>
+                    <Tab value="steps">{t.tab.steps}</Tab>
+                    <Tab value="example">{t.tab.example}</Tab>
                     <Tab value="issues">
-                      Issues{explanation.data.warnings.length > 0 ? ` (${explanation.data.warnings.length})` : ''}
+                      {t.tab.issues}
+                      {explanation.data.warnings.length > 0 ? ` (${explanation.data.warnings.length})` : ''}
                     </Tab>
-                    <Tab value="improve">Improve</Tab>
+                    <Tab value="improve">{t.tab.improve}</Tab>
                   </TabList>
                   <RegenerateButton onClick={handleRegenerate} />
                 </div>
 
                 {explanation.data.meta.degraded && (
-                  <div className={styles.degraded}>
-                    Offline explanation (AI service unavailable) — structure and issues are still exact.
-                  </div>
+                  <div className={styles.degraded}>{t.app.degradedBanner}</div>
                 )}
 
                 {tab === 'overview' && (
@@ -223,7 +230,8 @@ function ExplanationErrorState({
   error: ApiError;
   onRetry: () => void;
 }): JSX.Element {
-  const copy = explanationErrorCopy(error);
+  const t = useTranslation();
+  const copy = explanationErrorCopy(error, t);
   return (
     <ErrorState
       title={copy.title}

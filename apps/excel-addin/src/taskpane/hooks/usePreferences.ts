@@ -2,28 +2,33 @@
 import type { ExplanationContext, ExplanationMode } from '@formula-in-action/shared-types';
 import { useCallback, useState } from 'react';
 import { DEFAULT_CONTEXT, DEFAULT_MODE, PREFS_KEY } from '../constants';
+import { detectLanguage, type Language } from '../i18n';
 
 export interface Preferences {
   mode: ExplanationMode;
   context: ExplanationContext;
+  language: Language;
 }
 
-const DEFAULTS: Preferences = { mode: DEFAULT_MODE, context: DEFAULT_CONTEXT };
+function defaults(): Preferences {
+  return { mode: DEFAULT_MODE, context: DEFAULT_CONTEXT, language: detectLanguage() };
+}
 
 function readPreferences(): Preferences {
+  const fallback = defaults();
   try {
-    const roaming = Office?.context?.roamingSettings?.get(PREFS_KEY) as Preferences | undefined;
-    if (roaming?.mode && roaming.context) return { ...DEFAULTS, ...roaming };
+    const roaming = Office?.context?.roamingSettings?.get(PREFS_KEY) as Partial<Preferences> | undefined;
+    if (roaming?.mode && roaming.context) return { ...fallback, ...roaming };
   } catch {
     /* roamingSettings not ready */
   }
   try {
     const raw = window.localStorage.getItem(PREFS_KEY);
-    if (raw) return { ...DEFAULTS, ...(JSON.parse(raw) as Partial<Preferences>) };
+    if (raw) return { ...fallback, ...(JSON.parse(raw) as Partial<Preferences>) };
   } catch {
     /* storage unavailable */
   }
-  return DEFAULTS;
+  return fallback;
 }
 
 function writePreferences(prefs: Preferences): void {
@@ -43,7 +48,7 @@ function writePreferences(prefs: Preferences): void {
   }
 }
 
-/** Per-user mode/context, persisted via Office roaming settings (localStorage fallback). */
+/** Per-user mode/context/language, persisted via Office roaming settings (localStorage fallback). */
 export function usePreferences(): [Preferences, (patch: Partial<Preferences>) => void] {
   const [prefs, setPrefs] = useState<Preferences>(() => readPreferences());
 

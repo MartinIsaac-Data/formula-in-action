@@ -1,5 +1,6 @@
 import type { ExplanationResult } from '@formula-in-action/shared-types';
 import { Text } from '@fluentui/react-components';
+import { useTranslation } from '../../i18n';
 import { CopyButton } from '../actions/CopyButton';
 import { useTabStyles } from './shared';
 
@@ -11,16 +12,15 @@ export function ImproveTab({
   onCopySuggestion?: () => void;
 }): JSX.Element {
   const styles = useTabStyles();
+  const t = useTranslation();
 
   if (result.suggestions.length === 0) {
     return (
       <div className={styles.panel}>
         <Text className={styles.heading} size={200}>
-          ✨ IMPROVE
+          {t.improve.heading}
         </Text>
-        <Text className={styles.empty}>
-          This formula is already written well — no changes suggested.
-        </Text>
+        <Text className={styles.empty}>{t.improve.none}</Text>
       </div>
     );
   }
@@ -28,7 +28,7 @@ export function ImproveTab({
   return (
     <div className={styles.panel}>
       <Text className={styles.heading} size={200}>
-        ✨ IMPROVE
+        {t.improve.heading}
       </Text>
       {result.suggestions.map((suggestion) => (
         <div key={suggestion.id} className={styles.card}>
@@ -43,7 +43,7 @@ export function ImproveTab({
               </code>
               <CopyButton
                 value={suggestion.suggestedFormula}
-                label="Copy suggested formula"
+                label={t.improve.copySuggestedFormula}
                 onCopy={onCopySuggestion}
               />
             </div>

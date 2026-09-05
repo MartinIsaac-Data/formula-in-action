@@ -1,6 +1,7 @@
 import type { ExplanationMode } from '@formula-in-action/shared-types';
 import { makeStyles, TabList, Tab, tokens } from '@fluentui/react-components';
-import { MODE_OPTIONS } from '../constants';
+import { MODE_VALUES } from '../constants';
+import { useTranslation } from '../i18n';
 
 const useStyles = makeStyles({
   root: { padding: `0 ${tokens.spacingHorizontalL}` },
@@ -14,6 +15,7 @@ export function ModeSwitcher({
   onChange: (mode: ExplanationMode) => void;
 }): JSX.Element {
   const styles = useStyles();
+  const t = useTranslation();
   return (
     <div className={styles.root}>
       <TabList
@@ -21,9 +23,9 @@ export function ModeSwitcher({
         selectedValue={value}
         onTabSelect={(_e, data) => onChange(data.value as ExplanationMode)}
       >
-        {MODE_OPTIONS.map((option) => (
-          <Tab key={option.value} value={option.value} title={option.hint}>
-            {option.label}
+        {MODE_VALUES.map((mode) => (
+          <Tab key={mode} value={mode} title={t.mode.options[mode].hint}>
+            {t.mode.options[mode].label}
           </Tab>
         ))}
       </TabList>

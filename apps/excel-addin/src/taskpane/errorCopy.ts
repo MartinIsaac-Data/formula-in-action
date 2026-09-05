@@ -1,3 +1,4 @@
+import type { Dictionary } from './i18n';
 import type { ApiError } from './services/apiClient';
 
 export interface FriendlyError {
@@ -6,46 +7,28 @@ export interface FriendlyError {
   canRetry: boolean;
 }
 
-/** Map an ApiError code to task-pane copy. */
-export function explanationErrorCopy(error: ApiError): FriendlyError {
+/** Map an ApiError code to task-pane copy, in the current language. */
+export function explanationErrorCopy(error: ApiError, t: Dictionary): FriendlyError {
   switch (error.code) {
     case 'unparseable_formula':
-      return {
-        title: "That formula couldn't be read",
-        detail:
-          'It may be incomplete, or use syntax this tool does not support yet. Check the cell and try again.',
-        canRetry: false,
-      };
+      return { title: t.error.unparseableTitle, detail: t.error.unparseableDetail, canRetry: false };
     case 'formula_too_long':
-      return {
-        title: 'That formula is very long',
-        detail:
-          'Formula in Action explains formulas up to about 8,000 characters. Try selecting a smaller cell or explaining a sub-part.',
-        canRetry: false,
-      };
+      return { title: t.error.tooLongTitle, detail: t.error.tooLongDetail, canRetry: false };
     case 'invalid_request':
-      return { title: 'The request was rejected', detail: error.message, canRetry: false };
+      return { title: t.error.invalidRequestTitle, detail: error.message, canRetry: false };
     case 'rate_limited':
       return {
-        title: 'Too many requests',
+        title: t.error.rateLimitedTitle,
         detail: error.retryAfterMs
-          ? `Give it ${Math.ceil(error.retryAfterMs / 1000)} seconds, then try again.`
-          : 'Give it a few seconds, then try again.',
+          ? t.error.rateLimitedDetail(Math.ceil(error.retryAfterMs / 1000))
+          : t.error.rateLimitedDetailGeneric,
         canRetry: true,
       };
     case 'timeout':
-      return {
-        title: 'The service is taking too long',
-        detail: 'It may be busy right now. Try again in a moment.',
-        canRetry: true,
-      };
+      return { title: t.error.timeoutTitle, detail: t.error.timeoutDetail, canRetry: true };
     case 'network_error':
-      return {
-        title: "Can't reach the explanation service",
-        detail: 'Check that the API is running and reachable from Excel.',
-        canRetry: true,
-      };
+      return { title: t.error.networkTitle, detail: t.error.networkDetail, canRetry: true };
     default:
-      return { title: 'Could not generate an explanation', detail: error.message, canRetry: true };
+      return { title: t.error.genericTitle, detail: error.message, canRetry: true };
   }
 }

@@ -1,5 +1,6 @@
 import { Button } from '@fluentui/react-components';
 import { ArrowClockwiseRegular } from '@fluentui/react-icons';
+import { useTranslation } from '../../i18n';
 
 export function RegenerateButton({
   onClick,
@@ -8,6 +9,7 @@ export function RegenerateButton({
   onClick: () => void;
   disabled?: boolean;
 }): JSX.Element {
+  const t = useTranslation();
   return (
     <Button
       appearance="subtle"
@@ -16,7 +18,7 @@ export function RegenerateButton({
       onClick={onClick}
       disabled={disabled}
     >
-      Regenerate
+      {t.action.regenerate}
     </Button>
   );
 }

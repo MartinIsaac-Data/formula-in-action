@@ -44,4 +44,11 @@ describe('buildPrompt', () => {
     expect(user).not.toContain('named ranges');
     expect(user).not.toContain('lookups:');
   });
+
+  it('instructs the model to respond in the requested language, but not for the default locale', () => {
+    expect(promptFor('=1+1').user).not.toContain('RESPONSE LANGUAGE');
+    const { user } = promptFor('=1+1', { locale: 'fr-FR' });
+    expect(user).toContain('RESPONSE LANGUAGE');
+    expect(user).toContain('French');
+  });
 });

@@ -8,6 +8,7 @@ import {
   Text,
   tokens,
 } from '@fluentui/react-components';
+import { useTranslation } from '../i18n';
 
 const useStyles = makeStyles({
   row: { display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalXXS },
@@ -19,11 +20,12 @@ const useStyles = makeStyles({
 
 export function FunctionsTable({ functions }: { functions: ExplanationFunction[] }): JSX.Element {
   const styles = useStyles();
+  const t = useTranslation();
 
   if (functions.length === 0) {
     return (
       <Text className={styles.empty} size={200}>
-        This formula does not use any functions.
+        {t.functionsTable.empty}
       </Text>
     );
   }
