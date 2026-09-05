@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.7.4",
+    "office-addin-dev-certs": "^1.13.4",
     "pino-pretty": "^11.2.2",
     "tsx": "^4.19.1"
   }

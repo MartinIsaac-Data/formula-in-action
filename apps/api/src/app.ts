@@ -14,6 +14,7 @@ import {
   explanationResultSchema,
   telemetryEventSchema,
 } from './openapi';
+import type { DevHttpsOptions } from './devCerts';
 import { registerRoutes } from './routes/index';
 import { API_VERSION } from './version';
 
@@ -28,6 +29,8 @@ export interface BuildAppOptions {
   env?: Env;
   /** Inject a provider (tests, or a non-default privacy mode). */
   provider?: AiProvider;
+  /** Dev-only: serve HTTPS with the shared Office dev cert (see devCerts.ts). */
+  https?: DevHttpsOptions;
 }
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyInstance> {
@@ -46,6 +49,9 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
       return (Array.isArray(header) ? header[0] : header) ?? randomUUID();
     },
     ajv: { customOptions: { removeAdditional: false, coerceTypes: false, allowUnionTypes: true } },
+    // Only present the key when set — omit it, not `undefined`, so the
+    // no-https path resolves to the exact same Fastify() overload as before.
+    ...(options.https ? { https: options.https } : {}),
   });
 
   const provider =

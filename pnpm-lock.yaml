@@ -87,6 +87,9 @@ importers:
       '@types/node':
         specifier: ^22.7.4
         version: 22.20.1
+      office-addin-dev-certs:
+        specifier: ^1.13.4
+        version: 1.13.5
       pino-pretty:
         specifier: ^11.2.2
         version: 11.3.0

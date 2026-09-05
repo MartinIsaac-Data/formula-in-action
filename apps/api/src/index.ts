@@ -3,11 +3,21 @@
 import 'dotenv/config';
 
 import { buildApp } from './app';
+import { getDevHttpsOptions } from './devCerts';
 import { loadEnv } from './env';
 
 async function main(): Promise<void> {
   const env = loadEnv();
-  const app = await buildApp({ env });
+  // HTTPS locally so the (HTTPS) task pane can call this without a mixed-content
+  // block; in production the platform (Container Apps / Render) terminates TLS.
+  const https = env.NODE_ENV === 'development' ? await getDevHttpsOptions() : undefined;
+  if (env.NODE_ENV === 'development' && !https) {
+    console.warn(
+      '[dev] Office dev certs not found — serving plain HTTP. ' +
+        'Run: pnpm --filter @formula-in-action/excel-addin certs',
+    );
+  }
+  const app = await buildApp({ env, https });
 
   const shutdown = async (signal: string): Promise<void> => {
     app.log.info({ signal }, 'shutting down');
