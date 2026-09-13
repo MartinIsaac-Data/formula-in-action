@@ -1,9 +1,7 @@
 import {
   Button,
-  Dropdown,
   Link,
   makeStyles,
-  Option,
   Popover,
   PopoverSurface,
   PopoverTrigger,
@@ -19,6 +17,7 @@ import {
   type ExplanationLanguage,
 } from '../i18n';
 import { API_BASE_URL } from '../services/apiClient';
+import { NativeSelect } from './NativeSelect';
 
 function apiHost(url: string): string {
   try {
@@ -42,6 +41,7 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
     gap: tokens.spacingHorizontalS,
   },
+  select: { minWidth: '150px' },
 });
 
 export function SettingsMenu({
@@ -69,21 +69,13 @@ export function SettingsMenu({
       <PopoverSurface className={styles.surface}>
         <div className={styles.row}>
           <Text weight="semibold">{t.settings.explanationLanguage}</Text>
-          <Dropdown
-            size="small"
-            style={{ minWidth: '150px' }}
-            value={displayName(explanationLanguage)}
-            selectedOptions={[explanationLanguage]}
-            onOptionSelect={(_e, data) => {
-              if (data.optionValue) onExplanationLanguageChange(data.optionValue as ExplanationLanguage);
-            }}
-          >
-            {EXPLANATION_LANGUAGE_VALUES.map((value) => (
-              <Option key={value} value={value} text={displayName(value)}>
-                {displayName(value)}
-              </Option>
-            ))}
-          </Dropdown>
+          <NativeSelect
+            className={styles.select}
+            value={explanationLanguage}
+            onChange={onExplanationLanguageChange}
+            ariaLabel={t.settings.explanationLanguage}
+            options={EXPLANATION_LANGUAGE_VALUES.map((value) => ({ value, label: displayName(value) }))}
+          />
         </div>
 
         <Text weight="semibold">{t.settings.privacy}</Text>

@@ -1,7 +1,8 @@
 import type { ExplanationContext } from '@formula-in-action/shared-types';
-import { Dropdown, makeStyles, Option, Text, tokens } from '@fluentui/react-components';
+import { makeStyles, Text, tokens } from '@fluentui/react-components';
 import { CONTEXT_VALUES } from '../constants';
 import { useTranslation } from '../i18n';
+import { NativeSelect } from './NativeSelect';
 
 const useStyles = makeStyles({
   root: {
@@ -11,7 +12,7 @@ const useStyles = makeStyles({
     padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalL}`,
   },
   label: { color: tokens.colorNeutralForeground3, whiteSpace: 'nowrap' },
-  dropdown: { minWidth: '150px' },
+  select: { minWidth: '150px' },
 });
 
 export function ContextPicker({
@@ -29,21 +30,13 @@ export function ContextPicker({
       <Text size={200} className={styles.label}>
         {t.context.pickerLabel}
       </Text>
-      <Dropdown
-        className={styles.dropdown}
-        size="small"
-        value={t.context.options[value] ?? ''}
-        selectedOptions={[value]}
-        onOptionSelect={(_e, data) => {
-          if (data.optionValue) onChange(data.optionValue as ExplanationContext);
-        }}
-      >
-        {CONTEXT_VALUES.map((context) => (
-          <Option key={context} value={context} text={t.context.options[context]}>
-            {t.context.options[context]}
-          </Option>
-        ))}
-      </Dropdown>
+      <NativeSelect
+        className={styles.select}
+        value={value}
+        onChange={onChange}
+        ariaLabel={t.context.pickerLabel}
+        options={CONTEXT_VALUES.map((context) => ({ value: context, label: t.context.options[context] }))}
+      />
     </div>
   );
 }
