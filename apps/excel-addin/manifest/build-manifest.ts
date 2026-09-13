@@ -17,8 +17,8 @@ const TARGETS: Record<Target, { baseUrl: string }> = {
   prod: { baseUrl: process.env['ADDIN_PROD_URL'] ?? 'https://REPLACE-WITH-YOUR-HOST' },
 };
 
-// A stable dev id. Regenerate with `crypto.randomUUID()` before AppSource submission.
-const ADDIN_ID = process.env['ADDIN_ID'] ?? 'b1e5c7a4-3f92-4d18-a6e0-7c9d2f1a4b83';
+// The permanent AppSource product id — do not regenerate after submission.
+const ADDIN_ID = process.env['ADDIN_ID'] ?? '7e6a89f9-977e-420f-bb66-674d8fded137';
 
 function main(): void {
   const target = process.argv[2] as Target | undefined;

@@ -4,10 +4,10 @@ Source of truth for `apps/excel-addin/public/privacy.html`. Fill in the
 bracketed placeholders before publishing or submitting to AppSource; this file
 and the HTML page should stay in sync.
 
-**Publisher:** [PUBLISHER / COMPANY NAME]
-**Contact:** [SUPPORT EMAIL]
-**Last updated:** [DATE]
-**AI provider:** [PROVIDER] (`AI_PROVIDER` env var on the deployed API — "Anthropic Claude" or "DeepSeek")
+**Publisher:** Martin Isaac Nyetam
+**Contact:** supportformulainaction@gmail.com
+**Last updated:** September 13, 2026
+**AI provider:** DeepSeek (`AI_PROVIDER` env var on the deployed API — "Anthropic Claude" or "DeepSeek")
 
 ## What Formula in Action is
 
@@ -37,7 +37,7 @@ service, which:
 1. Runs it through a deterministic analysis (no AI, no network call) to
    identify functions, references, and risks.
 2. Sends the analysis — not a screenshot, not the workbook — to our configured
-   AI provider (currently **[PROVIDER]**: either
+   AI provider (currently **DeepSeek**; the app also supports
    [Anthropic Claude](https://www.anthropic.com/legal/privacy) or
    [DeepSeek](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html))
    to generate the plain-language explanation and illustrative example.
@@ -75,5 +75,5 @@ identity.
 
 ## Contact
 
-Questions or requests about this statement: [SUPPORT EMAIL].
+Questions or requests about this statement: supportformulainaction@gmail.com.
 See also [support.html](../apps/excel-addin/public/support.html) for general help.
