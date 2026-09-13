@@ -30,7 +30,7 @@ useful for offline work.
 See [`.env.example`](.env.example). Key vars: `PRIVACY_MODE` (`cloud` only in
 the MVP), `AI_PROVIDER` (`claude` | `deepseek` — same `AIProvider` interface,
 see `packages/explanation-engine/src/providers/`), `AI_MODEL` (defaults to
-`claude-sonnet-5` / `deepseek-chat` per provider if unset), `ANTHROPIC_API_KEY`
+`claude-sonnet-5` / `deepseek-flash` per provider if unset), `ANTHROPIC_API_KEY`
 / `DEEPSEEK_API_KEY` (only the one matching `AI_PROVIDER` is used),
 `AI_STRUCTURED_OUTPUT` (Claude only — DeepSeek always uses its own JSON mode),
 `RATE_LIMIT_MAX`, `CORS_ORIGINS`, `TRUST_PROXY_HOPS` (set to `1` behind a

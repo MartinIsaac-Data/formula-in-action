@@ -16,11 +16,11 @@ describe('createProvider', () => {
     const provider = createProvider({
       privacyMode: 'cloud',
       cloudProvider: 'deepseek',
-      model: 'deepseek-chat',
+      model: 'deepseek-flash',
       apiKey: 'test-key',
     });
     expect(provider).toBeInstanceOf(DeepSeekProvider);
-    expect(provider.id).toBe('deepseek-chat');
+    expect(provider.id).toBe('deepseek-flash');
   });
 
   it('still resolves the local and enterprise stubs', () => {
@@ -31,6 +31,6 @@ describe('createProvider', () => {
 
 describe('DeepSeekProvider', () => {
   it('refuses to construct without an API key', () => {
-    expect(() => new DeepSeekProvider({ model: 'deepseek-chat' })).toThrow(ProviderUnavailableError);
+    expect(() => new DeepSeekProvider({ model: 'deepseek-flash' })).toThrow(ProviderUnavailableError);
   });
 });

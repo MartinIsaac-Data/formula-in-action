@@ -35,7 +35,7 @@ services:
       - key: AI_PROVIDER
         value: claude # or: deepseek
       # Leave AI_MODEL unset for the per-provider default (claude-sonnet-5 /
-      # deepseek-chat); set it explicitly to pin a specific model.
+      # deepseek-flash); set it explicitly to pin a specific model.
       - key: AI_STRUCTURED_OUTPUT
         value: true # Claude only — ignored by DeepSeek
       - key: TELEMETRY_ENABLED

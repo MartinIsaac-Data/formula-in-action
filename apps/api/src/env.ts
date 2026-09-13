@@ -29,8 +29,14 @@ const EnvSchema = z.object({
   PRIVACY_MODE: PrivacyModeSchema.default('cloud'),
   /** Which vendor backs `PRIVACY_MODE=cloud`. */
   AI_PROVIDER: z.enum(['claude', 'deepseek']).default('claude'),
-  /** Defaults to a sensible model per AI_PROVIDER if unset — see `resolvedAiModel`. */
-  AI_MODEL: z.string().optional(),
+  /**
+   * Defaults to a sensible model per AI_PROVIDER if unset — see `resolvedAiModel`.
+   * An empty string (e.g. `AI_MODEL=` left blank in .env) counts as unset too.
+   */
+  AI_MODEL: z
+    .string()
+    .optional()
+    .transform((v) => (v === '' ? undefined : v)),
   ANTHROPIC_API_KEY: z.string().optional(),
   DEEPSEEK_API_KEY: z.string().optional(),
   /** Claude only — DeepSeek always uses its own JSON mode. */
@@ -46,7 +52,11 @@ export type Env = z.infer<typeof EnvSchema>;
 
 const DEFAULT_MODEL: Record<Env['AI_PROVIDER'], string> = {
   claude: 'claude-sonnet-5',
-  deepseek: 'deepseek-chat',
+  // DeepSeek's lineup as of 2026-09: deepseek-flash (fast/cheap) and
+  // deepseek-v4-pro (higher quality). Short structured-JSON explanations
+  // don't need frontier reasoning, so default to the cheap/fast tier;
+  // override with AI_MODEL=deepseek-v4-pro for higher quality.
+  deepseek: 'deepseek-flash',
 };
 
 /** The model id to use, applying a provider-appropriate default when AI_MODEL is unset. */

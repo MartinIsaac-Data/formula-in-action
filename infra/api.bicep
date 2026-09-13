@@ -51,7 +51,7 @@ param deepseekApiKey string = ''
 @description('Comma-separated allowed CORS origins for the task pane, e.g. https://addin.example.com')
 param corsOrigins string = ''
 
-@description('AI model id. Leave empty for the per-provider default (claude-sonnet-5 / deepseek-chat).')
+@description('AI model id. Leave empty for the per-provider default (claude-sonnet-5 / deepseek-flash).')
 param aiModel string = ''
 
 @allowed(['cloud', 'local', 'enterprise'])

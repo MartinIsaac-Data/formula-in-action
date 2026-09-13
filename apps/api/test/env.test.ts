@@ -8,18 +8,27 @@ describe('resolvedAiModel', () => {
     expect(resolvedAiModel(loadEnv(base))).toBe('claude-sonnet-5');
   });
 
-  it('defaults to deepseek-chat when AI_PROVIDER=deepseek', () => {
+  it('defaults to deepseek-flash when AI_PROVIDER=deepseek', () => {
     const env = loadEnv({ ...base, AI_PROVIDER: 'deepseek' } as unknown as NodeJS.ProcessEnv);
-    expect(resolvedAiModel(env)).toBe('deepseek-chat');
+    expect(resolvedAiModel(env)).toBe('deepseek-flash');
   });
 
   it('an explicit AI_MODEL always wins', () => {
     const env = loadEnv({
       ...base,
       AI_PROVIDER: 'deepseek',
-      AI_MODEL: 'deepseek-reasoner',
+      AI_MODEL: 'deepseek-v4-pro',
     } as unknown as NodeJS.ProcessEnv);
-    expect(resolvedAiModel(env)).toBe('deepseek-reasoner');
+    expect(resolvedAiModel(env)).toBe('deepseek-v4-pro');
+  });
+
+  it('treats an empty AI_MODEL (blank in .env) as unset', () => {
+    const env = loadEnv({
+      ...base,
+      AI_PROVIDER: 'deepseek',
+      AI_MODEL: '',
+    } as unknown as NodeJS.ProcessEnv);
+    expect(resolvedAiModel(env)).toBe('deepseek-flash');
   });
 });
 
