@@ -12,9 +12,11 @@ import {
   errorSchema,
   explainRequestSchema,
   explanationResultSchema,
+  healthDimensionSchema,
   telemetryEventSchema,
 } from './openapi';
 import type { DevHttpsOptions } from './devCerts';
+import { ExplainCache } from './lib/explainCache';
 import { registerRoutes } from './routes/index';
 import { API_VERSION } from './version';
 
@@ -22,6 +24,7 @@ declare module 'fastify' {
   interface FastifyInstance {
     aiProvider: AiProvider;
     appConfig: { maxTokens: number; telemetryEnabled: boolean; version: string };
+    explainCache: ExplainCache;
   }
 }
 
@@ -71,9 +74,18 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
     telemetryEnabled: env.TELEMETRY_ENABLED,
     version: API_VERSION,
   });
+  app.decorate(
+    'explainCache',
+    new ExplainCache({
+      maxEntries: env.EXPLAIN_CACHE_MAX,
+      ttlMs: env.EXPLAIN_CACHE_TTL_MINUTES * 60_000,
+    }),
+  );
 
   for (const schema of [
     explainRequestSchema,
+    // Must be added before ExplanationResult, which $refs it.
+    healthDimensionSchema,
     explanationResultSchema,
     telemetryEventSchema,
     errorSchema,

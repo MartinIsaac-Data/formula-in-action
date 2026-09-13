@@ -46,6 +46,14 @@ const EnvSchema = z.object({
 
   /** Accept POST /v1/events (anonymous, opt-in telemetry). */
   TELEMETRY_ENABLED: boolish.default('true'),
+
+  /**
+   * In-memory cache of successful explanations. The same formula explained in
+   * the same mode/context/locale is a pure function of its inputs, so re-asking
+   * the model costs money for an identical answer. `0` disables the cache.
+   */
+  EXPLAIN_CACHE_MAX: z.coerce.number().int().nonnegative().default(500),
+  EXPLAIN_CACHE_TTL_MINUTES: z.coerce.number().int().positive().default(1440),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

@@ -53,12 +53,20 @@ export const explainRoutes: FastifyPluginAsync = async (app) => {
         });
       }
 
+      const model = app.aiProvider.id;
+      const cached = app.explainCache.get(input, model);
+      if (cached) {
+        request.log.info({ cache: app.explainCache.stats }, 'explain served from cache');
+        return reply.send(cached);
+      }
+
       try {
         const result = await explainFormula(input, {
           provider: app.aiProvider,
           maxTokens: app.appConfig.maxTokens,
           onProviderError: (err) => request.log.warn({ err }, 'AI provider failed — degrading to template'),
         });
+        app.explainCache.set(input, model, result);
         return reply.send(result);
       } catch (err) {
         if (err instanceof FormulaParseError) {

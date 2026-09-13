@@ -1,5 +1,5 @@
 {
-  "name": "@formula-in-action/explanation-engine",
+  "name": "@formula-in-action/quality-engine",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -19,14 +19,11 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.68.0",
-    "@formula-in-action/formula-analyzer": "workspace:*",
     "@formula-in-action/formula-parser": "workspace:*",
-    "@formula-in-action/kpi-detector": "workspace:*",
-    "@formula-in-action/quality-engine": "workspace:*",
-    "@formula-in-action/risk-detector": "workspace:*",
-    "@formula-in-action/shared-types": "workspace:*",
-    "openai": "^7.10.0",
-    "zod": "^3.23.8"
+    "@formula-in-action/formula-analyzer": "workspace:*",
+    "@formula-in-action/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@formula-in-action/risk-detector": "workspace:*"
   }
 }

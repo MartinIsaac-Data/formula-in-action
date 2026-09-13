@@ -42,4 +42,6 @@ export const useTabStyles = makeStyles({
     border: `1px solid ${tokens.colorNeutralStroke2}`,
   },
   empty: { color: tokens.colorNeutralForeground3 },
+  /** Marks prose as model-written, to separate it from the measured fields. */
+  provenance: { color: tokens.colorNeutralForeground3, fontStyle: 'italic' },
 });

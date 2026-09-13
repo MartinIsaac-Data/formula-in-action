@@ -40,6 +40,16 @@ describe('ExplanationResultSchema', () => {
       illustrativeExample: { title: 't', scenario: 's', calculation: 'c', result: 'r' },
       warnings: [],
       suggestions: [],
+      health: {
+        score: 100,
+        band: 'excellent' as const,
+        dimensions: {
+          reliability: { score: 100, penalties: [] },
+          readability: { score: 100, penalties: [] },
+          performance: { score: 100, penalties: [] },
+          maintainability: { score: 100, penalties: [] },
+        },
+      },
       meta: {
         mode: 'simple' as const,
         context: 'business' as const,

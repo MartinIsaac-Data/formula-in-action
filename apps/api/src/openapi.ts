@@ -33,6 +33,27 @@ const step = {
   },
 };
 
+export const healthDimensionSchema = {
+  $id: 'HealthDimension',
+  type: 'object',
+  required: ['score', 'penalties'],
+  properties: {
+    score: { type: 'integer', minimum: 0, maximum: 100 },
+    penalties: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'label', 'points'],
+        properties: {
+          id: { type: 'string' },
+          label: { type: 'string' },
+          points: { type: 'integer', minimum: 1 },
+        },
+      },
+    },
+  },
+};
+
 export const explanationResultSchema = {
   $id: 'ExplanationResult',
   type: 'object',
@@ -46,6 +67,7 @@ export const explanationResultSchema = {
     'illustrativeExample',
     'warnings',
     'suggestions',
+    'health',
     'meta',
   ],
   properties: {
@@ -109,6 +131,24 @@ export const explanationResultSchema = {
         name: { type: 'string' },
         confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
         rationale: { type: 'string' },
+      },
+    },
+    health: {
+      type: 'object',
+      required: ['score', 'band', 'dimensions'],
+      properties: {
+        score: { type: 'integer', minimum: 0, maximum: 100 },
+        band: { type: 'string', enum: ['excellent', 'good', 'fair', 'poor'] },
+        dimensions: {
+          type: 'object',
+          required: ['reliability', 'readability', 'performance', 'maintainability'],
+          properties: {
+            reliability: { $ref: 'HealthDimension#' },
+            readability: { $ref: 'HealthDimension#' },
+            performance: { $ref: 'HealthDimension#' },
+            maintainability: { $ref: 'HealthDimension#' },
+          },
+        },
       },
     },
     meta: {

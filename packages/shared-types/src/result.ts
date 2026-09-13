@@ -47,6 +47,38 @@ export const FormulaSuggestionSchema = z.object({
 });
 export type FormulaSuggestion = z.infer<typeof FormulaSuggestionSchema>;
 
+/**
+ * One reason a health dimension lost points. `id` is stable and meant to be
+ * localized by the UI; `label` is the English fallback, needed because the API
+ * and the add-in deploy independently and may briefly disagree on known ids.
+ */
+export const HealthPenaltySchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  points: z.number().int().positive(),
+});
+export type HealthPenalty = z.infer<typeof HealthPenaltySchema>;
+
+export const HealthDimensionSchema = z.object({
+  score: z.number().int().min(0).max(100),
+  penalties: z.array(HealthPenaltySchema),
+});
+export type HealthDimension = z.infer<typeof HealthDimensionSchema>;
+
+/** Deterministic 0-100 verdict on the formula. Never AI-generated. */
+export const FormulaHealthSchema = z.object({
+  score: z.number().int().min(0).max(100),
+  band: z.enum(['excellent', 'good', 'fair', 'poor']),
+  dimensions: z.object({
+    reliability: HealthDimensionSchema,
+    readability: HealthDimensionSchema,
+    performance: HealthDimensionSchema,
+    maintainability: HealthDimensionSchema,
+  }),
+});
+export type FormulaHealth = z.infer<typeof FormulaHealthSchema>;
+export type HealthDimensionName = keyof FormulaHealth['dimensions'];
+
 export const DetectedKpiSchema = z.object({
   name: z.string(),
   confidence: KpiConfidenceSchema,
@@ -77,6 +109,7 @@ export const ExplanationResultSchema = z.object({
   warnings: z.array(FormulaWarningSchema),
   suggestions: z.array(FormulaSuggestionSchema),
   detectedKpi: DetectedKpiSchema.nullable().default(null),
+  health: FormulaHealthSchema,
   meta: ExplanationMetaSchema,
 });
 export type ExplanationResult = z.infer<typeof ExplanationResultSchema>;

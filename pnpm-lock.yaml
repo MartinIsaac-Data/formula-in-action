@@ -166,6 +166,9 @@ importers:
       '@formula-in-action/kpi-detector':
         specifier: workspace:*
         version: link:../kpi-detector
+      '@formula-in-action/quality-engine':
+        specifier: workspace:*
+        version: link:../quality-engine
       '@formula-in-action/risk-detector':
         specifier: workspace:*
         version: link:../risk-detector
@@ -198,6 +201,22 @@ importers:
       '@formula-in-action/shared-types':
         specifier: workspace:*
         version: link:../shared-types
+
+  packages/quality-engine:
+    dependencies:
+      '@formula-in-action/formula-analyzer':
+        specifier: workspace:*
+        version: link:../formula-analyzer
+      '@formula-in-action/formula-parser':
+        specifier: workspace:*
+        version: link:../formula-parser
+      '@formula-in-action/shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
+    devDependencies:
+      '@formula-in-action/risk-detector':
+        specifier: workspace:*
+        version: link:../risk-detector
 
   packages/risk-detector:
     dependencies:

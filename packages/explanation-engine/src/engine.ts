@@ -1,6 +1,7 @@
 import { analyzeFormula } from '@formula-in-action/formula-analyzer';
 import { FormulaParseError } from '@formula-in-action/formula-parser';
 import { detectKpi } from '@formula-in-action/kpi-detector';
+import { scoreFormula } from '@formula-in-action/quality-engine';
 import { detectRisks } from '@formula-in-action/risk-detector';
 import {
   AiExplanationDraftSchema,
@@ -48,6 +49,7 @@ export async function explainFormula(
   const warnings = detectRisks(structured);
   const kpi = detectKpi(structured);
   const functions = buildFunctionsTable(structured);
+  const health = scoreFormula(structured, warnings);
 
   const promptInput: PromptInput = {
     formula: request.formula,
@@ -95,6 +97,7 @@ export async function explainFormula(
     warnings,
     suggestions: draft.suggestions,
     detectedKpi: kpi,
+    health,
     meta: {
       mode: request.mode,
       context: request.context,

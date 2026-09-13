@@ -94,6 +94,19 @@ export interface Dictionary {
     functionsUsed: string;
     likelyKpi: (name: string) => string;
   };
+  health: {
+    heading: string;
+    /** Tooltip/aria text explaining that the score is computed, not generated. */
+    deterministicNote: string;
+    aiNote: string;
+    band: Record<'excellent' | 'good' | 'fair' | 'poor', string>;
+    dimension: Record<
+      'reliability' | 'readability' | 'performance' | 'maintainability',
+      string
+    >;
+    /** Keyed by penalty id; falls back to the server's English label when absent. */
+    penalty: Record<string, string>;
+  };
   steps: {
     heading: string;
     stepLabel: (n: number) => string;
@@ -202,6 +215,40 @@ export const TRANSLATIONS: Record<Language, Dictionary> = {
       functionsUsed: '🔧 FUNCTIONS USED',
       likelyKpi: (name) => `Likely ${name}`,
     },
+    health: {
+      heading: '🩺 FORMULA HEALTH',
+      deterministicNote: 'Measured from the formula itself — not AI-generated.',
+      aiNote: 'Written by AI — check it against your data.',
+      band: {
+        excellent: 'Excellent',
+        good: 'Good',
+        fair: 'Needs attention',
+        poor: 'At risk',
+      },
+      dimension: {
+        reliability: 'Reliability',
+        readability: 'Readability',
+        performance: 'Performance',
+        maintainability: 'Maintainability',
+      },
+      penalty: {
+        'division-risk': 'Division without an error guard',
+        'vlookup-approximate-match': 'Approximate-match lookup',
+        'lookup-missing-error-handling': 'Lookup with no fallback value',
+        'unsupported-function': 'Function not recognised',
+        'volatile-recalculation': 'Volatile function (recalculates constantly)',
+        'full-column-performance': 'Whole-column reference',
+        'deep-nested-if': 'Deeply nested IFs',
+        'vlookup-fragile-index': 'Hard-coded column number',
+        'hardcoded-value': 'Hard-coded value',
+        'very-long-formula': 'Very long formula',
+        'long-formula': 'Long formula',
+        'deep-nesting': 'Deeply nested function calls',
+        'many-functions': 'Many different functions in one formula',
+        'legacy-lookup': 'Legacy lookup (XLOOKUP is more robust)',
+        'cross-sheet-spread': 'Reads from many different sheets',
+      },
+    },
     steps: {
       heading: '🔍 STEP BY STEP',
       stepLabel: (n) => `Step ${n}`,
@@ -304,6 +351,40 @@ export const TRANSLATIONS: Record<Language, Dictionary> = {
       whatItDoes: '📖 CE QUE ÇA FAIT',
       functionsUsed: '🔧 FONCTIONS UTILISÉES',
       likelyKpi: (name) => `Probablement : ${name}`,
+    },
+    health: {
+      heading: '🩺 SANTÉ DE LA FORMULE',
+      deterministicNote: "Mesuré à partir de la formule elle-même — pas généré par l'IA.",
+      aiNote: "Rédigé par l'IA — à vérifier avec vos données.",
+      band: {
+        excellent: 'Excellente',
+        good: 'Bonne',
+        fair: 'À surveiller',
+        poor: 'À risque',
+      },
+      dimension: {
+        reliability: 'Fiabilité',
+        readability: 'Lisibilité',
+        performance: 'Performance',
+        maintainability: 'Maintenabilité',
+      },
+      penalty: {
+        'division-risk': "Division sans protection contre l'erreur",
+        'vlookup-approximate-match': 'Recherche en correspondance approximative',
+        'lookup-missing-error-handling': 'Recherche sans valeur de repli',
+        'unsupported-function': 'Fonction non reconnue',
+        'volatile-recalculation': 'Fonction volatile (recalcul permanent)',
+        'full-column-performance': 'Référence de colonne entière',
+        'deep-nested-if': 'SI trop imbriqués',
+        'vlookup-fragile-index': 'Numéro de colonne codé en dur',
+        'hardcoded-value': 'Valeur codée en dur',
+        'very-long-formula': 'Formule très longue',
+        'long-formula': 'Formule longue',
+        'deep-nesting': 'Appels de fonctions très imbriqués',
+        'many-functions': 'Beaucoup de fonctions différentes dans une seule formule',
+        'legacy-lookup': 'Recherche ancienne génération (XLOOKUP est plus robuste)',
+        'cross-sheet-spread': 'Lit depuis de nombreuses feuilles différentes',
+      },
     },
     steps: {
       heading: '🔍 ÉTAPE PAR ÉTAPE',
