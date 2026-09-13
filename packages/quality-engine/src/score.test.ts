@@ -79,6 +79,21 @@ describe('scoreFormula', () => {
     );
   });
 
+  it('never lets good dimensions dilute a broken reliability score', () => {
+    // Short and perfectly readable, but divides without a guard AND does an
+    // approximate-match lookup. A plain weighted mean called this "good".
+    const result = health('=VLOOKUP(A2,Sheet2!A:C,3,TRUE)/B2');
+    expect(result.dimensions.readability.score).toBe(100);
+    expect(result.dimensions.reliability.score).toBeLessThan(55);
+    expect(result.band).not.toBe('good');
+    expect(result.band).not.toBe('excellent');
+    expect(result.score).toBeLessThanOrEqual(result.dimensions.reliability.score + 15);
+  });
+
+  it('leaves a healthy formula unaffected by the reliability ceiling', () => {
+    expect(health('=SUM(A1:A10)').score).toBe(100);
+  });
+
   it('weights reliability above the other dimensions', () => {
     // Same single 25-point-class problem, moved between dimensions: the
     // reliability hit must cost the overall score more.

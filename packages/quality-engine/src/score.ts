@@ -40,6 +40,9 @@ const SEVERITY_MULTIPLIER = { info: 0.5, warning: 1, critical: 1.4 } as const;
 /** A single repeated finding should hurt, but never annihilate a dimension alone. */
 const PER_ID_CAP = 2;
 
+/** How far the overall score may sit above the reliability score. */
+const RELIABILITY_HEADROOM = 15;
+
 const LEGACY_LOOKUPS = new Set(['VLOOKUP', 'HLOOKUP']);
 
 /**
@@ -92,11 +95,18 @@ export function scoreFormula(
     maintainability: toDimension(buckets.maintainability),
   };
 
+  const weighted = (Object.keys(WEIGHTS) as HealthDimensionName[]).reduce(
+    (sum, name) => sum + dimensions[name].score * WEIGHTS[name],
+    0,
+  );
+
+  // A weighted mean alone lets three good dimensions dilute a broken one: a
+  // formula that divides without a guard *and* does an approximate-match lookup
+  // scored "good" purely because it was short and readable. Reliability is a
+  // ceiling, not just a term — a formula is never healthier than the odds it
+  // returns the right number.
   const score = Math.round(
-    (Object.keys(WEIGHTS) as HealthDimensionName[]).reduce(
-      (sum, name) => sum + dimensions[name].score * WEIGHTS[name],
-      0,
-    ),
+    Math.min(weighted, dimensions.reliability.score + RELIABILITY_HEADROOM),
   );
 
   return { score, band: bandFor(score), dimensions };
