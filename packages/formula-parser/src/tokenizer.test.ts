@@ -63,6 +63,17 @@ describe('tokenize', () => {
     });
   });
 
+  it('captures unqualified (this-row) structured references, e.g. [@Column]', () => {
+    expect(tokenize('[@Amount]')[0]).toMatchObject({
+      type: 'structured-ref',
+      value: '[@Amount]',
+    });
+    expect(tokenize('[@[Availability gap vs CDP]]')[0]).toMatchObject({
+      type: 'structured-ref',
+      value: '[@[Availability gap vs CDP]]',
+    });
+  });
+
   it('throws on an unterminated string', () => {
     expect(() => tokenize('"oops')).toThrow(/Unterminated/);
   });

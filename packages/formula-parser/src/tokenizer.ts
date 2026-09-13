@@ -171,6 +171,16 @@ export function tokenize(source: string): Token[] {
       continue;
     }
 
+    // Unqualified structured reference inside a table's own formula, e.g.
+    // [@Column] or [@[Column with spaces]] — same shape as Ident[...] but
+    // without the leading table name.
+    if (ch === '[') {
+      const bracket = readBalancedBrackets(source, i);
+      push('structured-ref', source.slice(i, bracket), i, bracket);
+      i = bracket;
+      continue;
+    }
+
     // Reference / name / function / boolean (with an optional sheet prefix).
     if (IDENT_START.test(ch) || ch === '$' || ch === "'") {
       const start = i;

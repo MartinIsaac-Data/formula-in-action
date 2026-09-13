@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseFormula } from './parser';
 import { collect } from './traverse';
-import type { FunctionCallNode, ReferenceNode } from './types';
+import type { FunctionCallNode, ReferenceNode, StructuredReferenceNode } from './types';
 
 const fnNames = (formula: string): string[] =>
   collect(
@@ -122,6 +122,24 @@ describe('parseFormula', () => {
     it('classifies full-column vs full-row', () => {
       expect(refs('=SUM(A:A)')[0]).toMatchObject({ kind: 'column' });
       expect(refs('=SUM(1:1)')[0]).toMatchObject({ kind: 'row' });
+    });
+  });
+
+  describe('structured references', () => {
+    it('parses a qualified table reference with a table name', () => {
+      const [ref] = collect(
+        parseFormula('=SUM(Table1[Amount])').ast,
+        (n): n is StructuredReferenceNode => n.type === 'StructuredReference',
+      );
+      expect(ref).toMatchObject({ table: 'Table1', raw: 'Table1[Amount]' });
+    });
+
+    it('parses an unqualified this-row reference with no table name', () => {
+      const [ref] = collect(
+        parseFormula('=IF([@[Availability gap vs CDP]]>0,"OK","KO")').ast,
+        (n): n is StructuredReferenceNode => n.type === 'StructuredReference',
+      );
+      expect(ref).toMatchObject({ table: undefined, raw: '[@[Availability gap vs CDP]]' });
     });
   });
 
